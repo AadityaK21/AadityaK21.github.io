@@ -23,7 +23,7 @@ Plain HTML, CSS and JavaScript. No build step and no framework: edit a file, com
 ## Common edits
 
 - **Update the CV:** replace `assets/Aaditya_Kumawat_CV.pdf`, keeping the same file name.
-- **Change the email:** search for `aadityakumawat.iitd@gmail.com` across the HTML files.
+- **Change the email:** search for `aaditya@aadityakumawat.me` across the HTML files (it forwards to Gmail via Namecheap).
 - **Add a photo to the hero:** put the image in `assets/img/` and, in `index.html`, replace the `<canvas data-ridges ...>` line inside `<figure class="portrait">` with `<img src="/assets/img/your-photo.webp" alt="Aaditya Kumawat">`.
 - **Change the accent colour:** edit `--signal` at the top of `assets/css/site.css`.
 - After changing CSS or JS, bump `?v=1` in the `<link>` and `<script>` tags so browsers fetch the new file.
