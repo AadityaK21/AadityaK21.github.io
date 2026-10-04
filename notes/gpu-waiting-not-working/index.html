@@ -13,19 +13,20 @@
 <meta property="og:title" content="My GPU was waiting, not working | Aaditya Kumawat">
 <meta property="og:description" content="Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.">
 <meta property="og:url" content="https://aadityakumawat.me/notes/gpu-waiting-not-working/">
-<meta property="og:image" content="https://aadityakumawat.me/og.png">
+<meta property="og:image" content="https://aadityakumawat.me/assets/og/gpu-waiting-not-working.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="My GPU was waiting, not working | Aaditya Kumawat">
 <meta name="twitter:description" content="Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.">
-<meta name="twitter:image" content="https://aadityakumawat.me/og.png">
+<meta name="twitter:image" content="https://aadityakumawat.me/assets/og/gpu-waiting-not-working.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="alternate" type="application/atom+xml" title="Notes by Aaditya Kumawat" href="/notes/feed.xml">
 <link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
-<link rel="stylesheet" href="/assets/css/site.css?v=3">
+<link rel="stylesheet" href="/assets/css/site.css?v=4">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"My GPU was waiting, not working","description":"Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.","datePublished":"2026-10-05","author":{"@type":"Person","name":"Aaditya Kumawat","url":"https://aadityakumawat.me/"},"mainEntityOfPage":"https://aadityakumawat.me/notes/gpu-waiting-not-working/"}</script>
 </head>
 <body>
@@ -65,7 +66,7 @@
 
 <h2>The number that didn&rsquo;t fit</h2>
 <p>Qwen2.5-0.5B in fp16 is 943 MiB of weights, and my laptop&rsquo;s RTX 4060 sustains about 210 to 226 GB/s on a plain memory copy. If memory were the limit, one decode step at batch size 1 should take about 4.5 ms.</p>
-<div class="tbl"><table><thead><tr><th></th><th class="r">Windows 11</th><th class="r">WSL2 Ubuntu</th></tr></thead><tbody><tr><td>Memory-bandwidth floor per step</td><td class="r">~4.5 ms</td><td class="r">~4.5 ms</td></tr><tr><td>Actual batch-1 step (eager transformers)</td><td class="r">23.7 ms</td><td class="r">16.6 ms</td></tr><tr><td>Cost of launching one small kernel</td><td class="r">7.8&ndash;15 &micro;s</td><td class="r">6.8&ndash;9.2 &micro;s</td></tr><tr><td>GPU utilisation during decode</td><td class="r"><strong>18%</strong></td><td class="r"><strong>22%</strong></td></tr></tbody></table></div>
+<div class="tbl"><table><thead><tr><th>Measure</th><th class="r">Windows 11</th><th class="r">WSL2 Ubuntu</th></tr></thead><tbody><tr><td>Memory-bandwidth floor per step</td><td class="r">~4.5 ms</td><td class="r">~4.5 ms</td></tr><tr><td>Actual batch-1 step (eager transformers)</td><td class="r">23.7 ms</td><td class="r">16.6 ms</td></tr><tr><td>Cost of launching one small kernel</td><td class="r">7.8&ndash;15 &micro;s</td><td class="r">6.8&ndash;9.2 &micro;s</td></tr><tr><td>GPU utilisation during decode</td><td class="r"><strong>18%</strong></td><td class="r"><strong>22%</strong></td></tr></tbody></table></div>
 <p>The step was four to five times slower than the bandwidth floor. Profiling showed why: the GPU was busy for only about a fifth of each step. The rest of the time it sat idle while the CPU issued the next of roughly 1,000 to 1,350 small kernels.</p>
 <div class="anatomy" role="img" aria-label="Share of each batch-1 decode step the GPU spent computing: 18 percent on Windows, 22 percent on WSL2. The rest was spent waiting for the next kernel launch.">
   <div class="an-row"><span class="an-label">Windows 11</span><span class="an-track"><span class="an-busy" style="width:18%"></span></span><span class="an-val">18% busy</span></div>
@@ -118,6 +119,7 @@
   <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
   <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
 </footer>
-<script src="/assets/js/site.js?v=3" defer></script>
+<script src="/assets/js/site.js?v=4" defer></script>
+<script data-goatcounter="https://aadityakumawat.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>

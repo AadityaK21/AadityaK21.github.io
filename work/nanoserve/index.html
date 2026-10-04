@@ -13,19 +13,20 @@
 <meta property="og:title" content="nanoserve: LLM inference server from scratch | Aaditya Kumawat">
 <meta property="og:description" content="nanoserve is an LLM inference server written from scratch: paged KV cache, continuous batching, a fused Triton attention kernel and INT4/INT8 quantization. 1.65x throughput and 12x lower p99 TTFT over static batching.">
 <meta property="og:url" content="https://aadityakumawat.me/work/nanoserve/">
-<meta property="og:image" content="https://aadityakumawat.me/og.png">
+<meta property="og:image" content="https://aadityakumawat.me/assets/og/nanoserve.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="nanoserve: LLM inference server from scratch | Aaditya Kumawat">
 <meta name="twitter:description" content="nanoserve is an LLM inference server written from scratch: paged KV cache, continuous batching, a fused Triton attention kernel and INT4/INT8 quantization. 1.65x throughput and 12x lower p99 TTFT over static batching.">
-<meta name="twitter:image" content="https://aadityakumawat.me/og.png">
+<meta name="twitter:image" content="https://aadityakumawat.me/assets/og/nanoserve.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="alternate" type="application/atom+xml" title="Notes by Aaditya Kumawat" href="/notes/feed.xml">
 <link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
-<link rel="stylesheet" href="/assets/css/site.css?v=3">
+<link rel="stylesheet" href="/assets/css/site.css?v=4">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -53,12 +54,12 @@
   </div>
   <div class="cs-hero-visual "><div class="bars" role="img" aria-label="Output throughput: static batching 61.0 tokens per second, nanoserve 100.4. p99 time to first token: static batching 60.8 seconds, nanoserve 5.2 seconds.">
   <div>
-    <h4>Output throughput <span>tokens/s, higher is better</span></h4>
+    <p class="bars-h">Output throughput <span>tokens/s, higher is better</span></p>
     <div class="bar"><span>Static batching</span><span class="bar-track" style="--w:50.6%"><span class="bar-fill"></span><span class="bar-val">61.0</span></span></div>
     <div class="bar"><span>nanoserve</span><span class="bar-track" style="--w:83.3%"><span class="bar-fill is-ours"></span><span class="bar-val">100.4</span></span></div>
   </div>
   <div>
-    <h4>p99 time to first token <span>seconds, lower is better</span></h4>
+    <p class="bars-h">p99 time to first token <span>seconds, lower is better</span></p>
     <div class="bar"><span>Static batching</span><span class="bar-track" style="--w:83.3%"><span class="bar-fill"></span><span class="bar-val">60.8 s</span></span></div>
     <div class="bar"><span>nanoserve</span><span class="bar-track" style="--w:7.1%"><span class="bar-fill is-ours"></span><span class="bar-val">5.2 s</span></span></div>
   </div>
@@ -90,6 +91,7 @@
   <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
   <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
 </footer>
-<script src="/assets/js/site.js?v=3" defer></script>
+<script src="/assets/js/site.js?v=4" defer></script>
+<script data-goatcounter="https://aadityakumawat.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>

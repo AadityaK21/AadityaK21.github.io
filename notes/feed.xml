@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Notes by Aaditya Kumawat</title>
+  <subtitle>Short write-ups on what my projects measured.</subtitle>
+  <link href="https://aadityakumawat.me/notes/feed.xml" rel="self"/>
+  <link href="https://aadityakumawat.me/notes/"/>
+  <id>https://aadityakumawat.me/notes/</id>
+  <updated>2026-10-05T00:00:00+05:30</updated>
+  <author><name>Aaditya Kumawat</name><uri>https://aadityakumawat.me/</uri></author>
+  <entry>
+    <title>My GPU was waiting, not working</title>
+    <link href="https://aadityakumawat.me/notes/gpu-waiting-not-working/"/>
+    <id>https://aadityakumawat.me/notes/gpu-waiting-not-working/</id>
+    <updated>2026-10-05T00:00:00+05:30</updated>
+    <summary>Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.</summary>
+    <content type="html">
+&lt;p class=&quot;lead&quot;&gt;The standard advice about LLM inference is that decoding is limited by memory bandwidth. Every new token means reading all of the model&amp;rsquo;s weights from GPU memory, so the speed limit is how fast you can stream bytes. I built nanoserve, an inference server written from scratch, expecting to optimise for exactly that. The first careful measurement said I was optimising the wrong thing.&lt;/p&gt;
+
+&lt;h2&gt;The number that didn&amp;rsquo;t fit&lt;/h2&gt;
+&lt;p&gt;Qwen2.5-0.5B in fp16 is 943 MiB of weights, and my laptop&amp;rsquo;s RTX 4060 sustains about 210 to 226 GB/s on a plain memory copy. If memory were the limit, one decode step at batch size 1 should take about 4.5 ms.&lt;/p&gt;
+&lt;div class=&quot;tbl&quot;&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Measure&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;Windows 11&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;WSL2 Ubuntu&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Memory-bandwidth floor per step&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;~4.5 ms&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;~4.5 ms&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Actual batch-1 step (eager transformers)&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;23.7 ms&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;16.6 ms&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Cost of launching one small kernel&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;7.8&amp;ndash;15 &amp;micro;s&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;6.8&amp;ndash;9.2 &amp;micro;s&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;GPU utilisation during decode&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&lt;strong&gt;18%&lt;/strong&gt;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&lt;strong&gt;22%&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;
+&lt;p&gt;The step was four to five times slower than the bandwidth floor. Profiling showed why: the GPU was busy for only about a fifth of each step. The rest of the time it sat idle while the CPU issued the next of roughly 1,000 to 1,350 small kernels.&lt;/p&gt;
+&lt;div class=&quot;anatomy&quot; role=&quot;img&quot; aria-label=&quot;Share of each batch-1 decode step the GPU spent computing: 18 percent on Windows, 22 percent on WSL2. The rest was spent waiting for the next kernel launch.&quot;&gt;
+  &lt;div class=&quot;an-row&quot;&gt;&lt;span class=&quot;an-label&quot;&gt;Windows 11&lt;/span&gt;&lt;span class=&quot;an-track&quot;&gt;&lt;span class=&quot;an-busy&quot; style=&quot;width:18%&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;an-val&quot;&gt;18% busy&lt;/span&gt;&lt;/div&gt;
+  &lt;div class=&quot;an-row&quot;&gt;&lt;span class=&quot;an-label&quot;&gt;WSL2 Ubuntu&lt;/span&gt;&lt;span class=&quot;an-track&quot;&gt;&lt;span class=&quot;an-busy&quot; style=&quot;width:22%&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;an-val&quot;&gt;22% busy&lt;/span&gt;&lt;/div&gt;
+  &lt;p class=&quot;an-key&quot;&gt;&lt;i class=&quot;k-busy&quot;&gt;&lt;/i&gt;GPU computing &lt;i class=&quot;k-idle&quot;&gt;&lt;/i&gt;GPU idle, waiting for the CPU to launch the next kernel&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;h2&gt;The tell: batching was almost free&lt;/h2&gt;
+&lt;p&gt;If most of each step is a fixed launch cost, a bigger batch should cost almost nothing extra. That is exactly what happened. Step time went from 28 ms at batch 1 to 34 ms at batch 32, so throughput went from 35.5 to 941.8 tokens per second: a 26&amp;times; gain for 20% more time per step.&lt;/p&gt;
+
+&lt;h2&gt;I blamed Windows first, and I was wrong&lt;/h2&gt;
+&lt;p&gt;My first theory was the Windows display driver model (WDDM), which routes kernel launches through the operating system&amp;rsquo;s scheduler. I predicted Linux would be much faster. The measurements didn&amp;rsquo;t back that up:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Two consecutive runs of the same Linux setup measured the small-kernel cost at 6.8 &amp;micro;s and 9.2 &amp;micro;s. That 35% spread overlaps the Windows range.&lt;/li&gt;
+&lt;li&gt;The two setups also ran different PyTorch builds, which changed the number of device ops per step from 1,350 to 1,014 for identical model code. That is a library difference, not an OS one.&lt;/li&gt;
+&lt;li&gt;Utilisation was 18% against 22%. Both were overhead-bound.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p class=&quot;pull&quot;&gt;On this hardware, the number of kernels is what moves decode time. The operating system is not.&lt;/p&gt;
+
+&lt;h2&gt;What I changed because of it&lt;/h2&gt;
+&lt;p&gt;Once the bottleneck was clear, every change that paid off was one that cut the number of ops per step:&lt;/p&gt;
+&lt;div class=&quot;tbl&quot;&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Change&lt;/th&gt;&lt;th&gt;Why it mattered here&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;RoPE cos/sin computed once per step&lt;/td&gt;&lt;td&gt;Positions are the same in all 24 layers; the old code built 48 identical tensors per step&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Fused RMSNorm&lt;/td&gt;&lt;td&gt;Replaced an 8-kernel hand-written norm used at 48 places per step&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Grouped-query attention inside SDPA&lt;/td&gt;&lt;td&gt;Stopped materialising a 7&amp;times; expanded copy of K and V&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;One pinned host-to-device copy for step metadata&lt;/td&gt;&lt;td&gt;Was six separate small transfers per step&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;
+&lt;p&gt;Together with a faster way of mapping tokens to cache slots, these took the batch-1 step from 33.7 ms to 28.2 ms, 16% faster.&lt;/p&gt;
+&lt;p&gt;Then the fused Triton paged-attention kernel replaced about ten ops per layer with one. Device ops per step fell from 1,014 to 682, GPU utilisation at batch 32 rose from 23% to 36%, and nanoserve clearly beat eager transformers for the first time: 1.23&amp;times; at batch 8.&lt;/p&gt;
+&lt;figure class=&quot;cs-figure&quot;&gt;&lt;img src=&quot;/assets/img/nanoserve-kernel.webp&quot; width=&quot;1540&quot; height=&quot;588&quot; alt=&quot;Left: attention time against context length for the torch and Triton backends. Right: the Triton kernel&#x27;s speed-up, falling from about 12 times at short context to about 2 to 4 times at 4096 tokens.&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot;&gt;&lt;figcaption&gt;The kernel&amp;rsquo;s speed-up shrinks as context grows, which surprised me. At batch 1 the torch path takes about the same time at every context length, because it is paying for ten kernel launches, not for the data.&lt;/figcaption&gt;&lt;/figure&gt;
+
+&lt;h2&gt;Four measurements that lied first&lt;/h2&gt;
+&lt;p&gt;Before any of these numbers could be trusted, four bugs in the measurement itself had to go. Each one produced a plausible-looking wrong answer.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Clock ramp.&lt;/strong&gt; The GPU idles at 210 MHz and boosts to 2,595 MHz. Whatever ran first was measured cold, which once produced &amp;ldquo;batch 32 is faster than batch 1&amp;rdquo; and a fake 3.4&amp;times; win. Now there are 8 seconds of sustained work before measuring, repeated before every row.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Double-counted kernels.&lt;/strong&gt; The profiler attributes time to both an op and its kernel. Summing both reported 166% GPU utilisation.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Mismatched runs.&lt;/strong&gt; Busy time from a profiled run was being divided by wall time from an unprofiled one.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Noise.&lt;/strong&gt; Every configuration is now timed twice and flagged if the runs disagree by more than 15%.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Where this leaves nanoserve&lt;/h2&gt;
+&lt;p&gt;Against vLLM in its strongest setup (torch.compile plus CUDA graphs), on the same GPU and the same requests, the honest comparison is:&lt;/p&gt;
+&lt;div class=&quot;tbl&quot;&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Server&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;Output tokens/s&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;vs vLLM&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;vLLM, compiled with CUDA graphs&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;2,103.5&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;1.00&amp;times;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;nanoserve, continuous batching + Triton&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;663.0&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;0.32&amp;times;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Static batching, best batch size&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;236.9&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;0.11&amp;times;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;
+&lt;p&gt;The biggest part of that gap is the same story. vLLM captures its decode step as CUDA graphs once and replays them, while nanoserve re-issues around 680 kernels every step from Python. So the next change is CUDA graphs for decode. The shapes are static, so the step can be captured once and replayed. That attacks the time spent waiting, which is still most of each step, instead of the time spent working.&lt;/p&gt;
+
+&lt;h2&gt;The takeaway&lt;/h2&gt;
+&lt;p&gt;Measure the shape of the bottleneck on your own hardware before optimising for it. &amp;ldquo;Decode is memory-bound&amp;rdquo; may well hold for a large model on a datacenter GPU. For a 0.5B model on a laptop GPU, the real step took four to five times longer than the memory floor, and the gap was all launch overhead.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>A Gaussian blur beat my method</title>
+    <link href="https://aadityakumawat.me/notes/gaussian-blur-beat-my-method/"/>
+    <id>https://aadityakumawat.me/notes/gaussian-blur-beat-my-method/</id>
+    <updated>2026-10-05T00:00:00+05:30</updated>
+    <summary>What happened when I tested the metric instead of the method, on my direction-adaptive EMD for fingerprints.</summary>
+    <content type="html">
+&lt;p class=&quot;lead&quot;&gt;ST-BEMD is a 2-D empirical mode decomposition I built this summer. It bends its envelopes along the local ridge direction, so on fingerprints it should keep each ridge&amp;rsquo;s orientation intact better than the standard, direction-blind version. On 30 real prints, orientation error dropped from 13.71&amp;deg; to 8.25&amp;deg;, and every single print improved. This note is about why that number does not mean what it looks like it means.&lt;/p&gt;
+
+&lt;h2&gt;Two changes, one name&lt;/h2&gt;
+&lt;p&gt;Compared with the 2003 baseline, ST-BEMD changes two things at once. The envelope goes from a global RBF interpolation to a local weighted average, and the averaging kernel goes from a circle to an ellipse stretched along the ridges. The method is named after the second change, so I ran a version with only the first one: the same local averaging, but with a circular kernel.&lt;/p&gt;
+&lt;div class=&quot;tbl&quot;&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Version&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;Orientation error (30 prints)&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;Step&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Baseline: global RBF, circular&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;13.71&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Local average, circular kernel&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;9.43&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&amp;minus;4.29&amp;deg; from the envelope&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ST-BEMD: local average, elliptical kernel&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;8.25&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&amp;minus;1.18&amp;deg; from the anisotropy&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;
+&lt;p&gt;About 78% of the improvement comes from the local envelope, which is an existing idea, not from the anisotropy the method is named after. The anisotropy&amp;rsquo;s own effect is real (better on 70% of prints, p = 0.001), but small. Worse, it shrinks as ridges curve: +1.42&amp;deg;, +1.13&amp;deg; and +0.20&amp;deg; from low to high curvature. The whole premise of the method predicts the opposite.&lt;/p&gt;
+
+&lt;h2&gt;Then I tested the metric&lt;/h2&gt;
+&lt;p&gt;The orientation error compares the orientation field of the extracted layer with the orientation field of the input. That made me wonder how estimators that know nothing about orientation would score.&lt;/p&gt;
+&lt;div class=&quot;tbl&quot;&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Estimator&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;Orientation error&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Return the input unchanged&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&lt;strong&gt;0.00&amp;deg;&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Subtract a Gaussian blur (&amp;sigma; = 4)&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&lt;strong&gt;4.23&amp;deg;&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Subtract a Gaussian blur (&amp;sigma; = 1)&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;7.26&amp;deg;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ST-BEMD&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;8.25&amp;deg;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Local average, circular kernel&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;9.43&amp;deg;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Baseline&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;13.71&amp;deg;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;
+&lt;p&gt;Doing nothing scores a perfect zero. Subtracting a blurred copy of the image scores about twice as well as my method. The metric&amp;rsquo;s best possible answer is to leave the input alone.&lt;/p&gt;
+
+&lt;h2&gt;What the metric was really measuring&lt;/h2&gt;
+&lt;p&gt;To check this properly, I picked the blur width on half the prints and scored on the other half, so the control couldn&amp;rsquo;t be tuned to the test set. I also added a second measure, IMF validity: how close the extracted layer is to having zero local mean, which is the thing sifting is supposed to achieve. Lower is better.&lt;/p&gt;
+&lt;div class=&quot;tbl&quot;&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Held out, 15 prints&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;Orientation error&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;IMF validity&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Baseline&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;15.91&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&lt;strong&gt;0.131&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Local average, circular kernel&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;10.08&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;0.210&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ST-BEMD&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;9.34&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;0.185&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Gaussian blur control&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&lt;strong&gt;4.86&amp;deg;&lt;/strong&gt;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;0.383&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;
+&lt;p&gt;Across all ten estimators the two measures are anti-correlated at r = &amp;minus;0.94. Scoring well on orientation means having sifted less.&lt;/p&gt;
+&lt;figure class=&quot;cs-figure&quot;&gt;&lt;img src=&quot;/assets/img/stbemd-metric-tradeoff.webp&quot; width=&quot;1056&quot; height=&quot;718&quot; alt=&quot;Scatter of orientation error against IMF validity. The Gaussian blur controls sit top left: low orientation error but poor validity. The baseline sits bottom right. ST-BEMD and the circular local version are in between.&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot;&gt;&lt;figcaption&gt;The two measures pull against each other. The blur buys its orientation score by not doing the job.&lt;/figcaption&gt;&lt;/figure&gt;
+&lt;p class=&quot;pull&quot;&gt;The orientation metric was largely measuring how little each estimator sifted.&lt;/p&gt;
+&lt;p&gt;So the 13.71&amp;deg; to 8.25&amp;deg; result supports a narrower claim: ST-BEMD&amp;rsquo;s envelope disturbs the orientation field less than a global interpolant does. It does not show that it recovers orientation better. One small point does survive cleanly: against the circular local version, ST-BEMD is better on both measures (9.34&amp;deg; vs 10.08&amp;deg;, and 0.185 vs 0.210). Same machinery, only the kernel shape differs.&lt;/p&gt;
+
+&lt;h2&gt;A test that doing nothing can&amp;rsquo;t win as easily&lt;/h2&gt;
+&lt;p&gt;To break the circularity, I took the reference orientation from the clean print and gave every method a noisy copy, so preserving the input is no longer enough. I also measured orientation with two unrelated instruments, a bank of Gabor filters and the structure tensor, so the method couldn&amp;rsquo;t be graded by the same tool it steers by.&lt;/p&gt;
+&lt;div class=&quot;tbl&quot;&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Noise level&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;Baseline&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;ST-BEMD&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;ST-BEMD ahead by&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;20 dB (light)&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;10.04&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;10.97&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&amp;minus;0.93&amp;deg;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;10 dB&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;12.87&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;12.57&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;+0.30&amp;deg;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;5 dB (heavy)&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;18.33&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;15.06&amp;deg;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&lt;strong&gt;+3.27&amp;deg;&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;
+&lt;figure class=&quot;cs-figure&quot;&gt;&lt;img src=&quot;/assets/img/stbemd-noise-test.webp&quot; width=&quot;978&quot; height=&quot;640&quot; alt=&quot;Orientation error against the clean print as noise increases from 20 dB to 5 dB. ST-BEMD grows more slowly than the baseline and ends at 15.1 degrees against 18.3. The do-nothing line stays lowest throughout.&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot;&gt;&lt;figcaption&gt;With the reference taken from the clean print, ST-BEMD degrades more gracefully than the baseline as noise rises. Doing nothing is still the lowest line.&lt;/figcaption&gt;&lt;/figure&gt;
+&lt;p&gt;With light noise ST-BEMD is slightly worse. With heavy noise it is ahead by 3.3&amp;deg; (3.6&amp;deg; with the second instrument), and both instruments agree on the ranking. That is the claim I can defend: &lt;strong&gt;direction-adaptive local envelopes are more robust to noise than global RBF interpolation.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;It is still not a clean win. Doing nothing remains the lowest-error entry, and the blur still beats every EMD method on orientation. This protocol is necessary, not sufficient.&lt;/p&gt;
+
+&lt;h2&gt;What I&amp;rsquo;d tell myself in May&lt;/h2&gt;
+&lt;p&gt;Build the control before the method. If a metric gives its best score to an estimator that does nothing, it cannot reward an estimator for doing something. I only found this because I tried to beat my own number with something deliberately dumb, and it won.&lt;/p&gt;
+</content>
+  </entry>
+</feed>

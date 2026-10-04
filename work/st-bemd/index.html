@@ -13,19 +13,20 @@
 <meta property="og:title" content="ST-BEMD: direction-adaptive 2-D EMD | Aaditya Kumawat">
 <meta property="og:description" content="ST-BEMD is a structure-tensor-guided empirical mode decomposition for 2-D signals. On 100 real fingerprints it cuts orientation error by 35.7% against isotropic BEMD.">
 <meta property="og:url" content="https://aadityakumawat.me/work/st-bemd/">
-<meta property="og:image" content="https://aadityakumawat.me/og.png">
+<meta property="og:image" content="https://aadityakumawat.me/assets/og/st-bemd.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ST-BEMD: direction-adaptive 2-D EMD | Aaditya Kumawat">
 <meta name="twitter:description" content="ST-BEMD is a structure-tensor-guided empirical mode decomposition for 2-D signals. On 100 real fingerprints it cuts orientation error by 35.7% against isotropic BEMD.">
-<meta name="twitter:image" content="https://aadityakumawat.me/og.png">
+<meta name="twitter:image" content="https://aadityakumawat.me/assets/og/st-bemd.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="alternate" type="application/atom+xml" title="Notes by Aaditya Kumawat" href="/notes/feed.xml">
 <link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
-<link rel="stylesheet" href="/assets/css/site.css?v=3">
+<link rel="stylesheet" href="/assets/css/site.css?v=4">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -64,7 +65,7 @@
 <p>Where coherence is zero the kernel becomes a circle, so the method falls back to ordinary 2-D EMD exactly where orientation is undefined.</p>
 <p>The original formulation, taken literally, stretches the kernel across the ridge instead of along it, which makes things worse. Getting that geometry right is the difference between 39.3&deg; and 8.3&deg; of orientation error on a real print.</p>
 <p>I wrote all four baselines from scratch: BEMD with a global RBF, Pseudo-BEMD, Serial-EMD and DEMD.</p>
-</div></section><section class="cs-section"><h2>Results</h2><div class="cs-body"><dl class="cs-facts"><div><dt>lower orientation error on 100 SOCOFing prints (12.87&deg; to 8.27&deg;)</dt><dd>35.7%</dd></div><div><dt>of 30 paired prints improved, Wilcoxon p = 1.9 &times; 10<sup>&minus;9</sup></dt><dd>100%</dd></div><div><dt>lower mean error on synthetic signals (3.08&deg; to 1.83&deg;)</dt><dd>40.6%</dd></div><div><dt>of the gain comes from the local envelope, not the anisotropy</dt><dd>78%</dd></div></dl><figure class="cs-figure"><img src="/assets/img/stbemd-fingerprints.webp" width="1420" height="666" alt="Left: orientation error for 30 prints, each with a blue isotropic point and an orange ST-BEMD point; every orange point is to the left. Right: error by ridge curvature, where both methods get worse but ST-BEMD stays lower." loading="lazy" decoding="async"><figcaption>Every one of 30 paired prints improves. Both methods get worse as ridges curve, and the gap holds across the range.</figcaption></figure>
+</div></section><section class="cs-section"><h2>Results</h2><div class="cs-body"><dl class="cs-facts"><div><dt>better than the baseline at 5 dB noise, against the clean print, on two independent instruments</dt><dd>3.3&deg;</dd></div><div><dt>lower self-referenced orientation error on 100 SOCOFing prints (12.87&deg; to 8.27&deg;); see the caveat below</dt><dd>35.7%</dd></div><div><dt>lower mean error on synthetic signals (3.08&deg; to 1.83&deg;)</dt><dd>40.6%</dd></div><div><dt>of the clean-data gain comes from the local envelope, not the anisotropy</dt><dd>78%</dd></div></dl><figure class="cs-figure"><img src="/assets/img/stbemd-fingerprints.webp" width="1420" height="666" alt="Left: orientation error for 30 prints, each with a blue isotropic point and an orange ST-BEMD point; every orange point is to the left. Right: error by ridge curvature, where both methods get worse but ST-BEMD stays lower." loading="lazy" decoding="async"><figcaption>Every one of 30 paired prints improves. Both methods get worse as ridges curve, and the gap holds across the range.</figcaption></figure>
 <p>The local envelope is also faster, because it sums over a small window instead of solving a dense system over all extrema. How much faster depends heavily on the machine and the signal, so I don&rsquo;t quote one multiplier.</p>
 </div></section><section class="cs-section"><h2>What the numbers don&rsquo;t say</h2><div class="cs-body">
 <p class="note">The method changes two things at once, so I ran an ablation to separate them. About 78% of the gain comes from switching to a local averaged envelope, which is an existing idea, not from the anisotropy the method is named after. The anisotropy still helps on its own (better on 70% of prints, p = 0.001), but the effect is small, and it shrinks on highly curved ridges.</p>
@@ -78,6 +79,7 @@
   <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
   <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
 </footer>
-<script src="/assets/js/site.js?v=3" defer></script>
+<script src="/assets/js/site.js?v=4" defer></script>
+<script data-goatcounter="https://aadityakumawat.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>

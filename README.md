@@ -16,9 +16,23 @@ Plain HTML, CSS and JavaScript. No build step and no framework: edit a file, com
 | `assets/img/` | Project figures (WebP) |
 | `assets/fonts/` | Archivo variable font, self-hosted |
 | `assets/Aaditya_Kumawat_CV.pdf` | The CV behind every "Download CV" button. Replace the file to update it |
-| `og.png` | Link preview image for WhatsApp, LinkedIn, Slack and so on |
+| `notes/` | Notes index, one folder per note, and `feed.xml` (Atom) |
+| `og.png`, `assets/og/` | Link preview images: the default, and one per project and note |
+| `tools/build/` | The Python generator that writes every HTML page, the sitemap and the feed |
 | `CNAME` | Custom domain. Do not delete |
 | `.nojekyll` | Tells Pages to serve the files as they are |
+
+## Editing
+
+The HTML is generated. Edit the content in `tools/build/` (`build.py` for the home page, `pages.py` for case studies, `notes.py` for notes, `common.py` for the head, header, footer and contact details), then run:
+
+```
+python3 tools/build/build.py
+```
+
+`tools/build/og.py` regenerates the preview images; it needs Playwright and a local server on port 8765 (`python3 -m http.server 8765`). Small text fixes can also be made directly in the HTML, but they will be overwritten the next time the generator runs.
+
+Visitor counts use GoatCounter at https://aadityakumawat.goatcounter.com (no cookies).
 
 ## Common edits
 
@@ -26,7 +40,7 @@ Plain HTML, CSS and JavaScript. No build step and no framework: edit a file, com
 - **Change the email:** search for `aaditya@aadityakumawat.me` across the HTML files (it forwards to Gmail via Namecheap).
 - **Add a photo to the hero:** put the image in `assets/img/` and, in `index.html`, replace the `<canvas data-ridges ...>` line inside `<figure class="portrait">` with `<img src="/assets/img/your-photo.webp" alt="Aaditya Kumawat">`.
 - **Change the accent colour:** edit `--signal` at the top of `assets/css/site.css`.
-- After changing CSS or JS, bump `?v=1` in the `<link>` and `<script>` tags so browsers fetch the new file.
+- After changing CSS or JS, bump `VERSION` in `tools/build/common.py` and rebuild so browsers fetch the new file.
 
 ## DNS (Namecheap)
 

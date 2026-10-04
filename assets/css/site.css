@@ -27,7 +27,7 @@
   --card: #fafaf9;
   --ink: #000;
   --ink-2: #2e2e2c;
-  --mute: #6b6b67;
+  --mute: #62625e;
   --rule: #d2d2ce;
   --signal: #ff4d00;
   --signal-ink: #c23a00; /* orange dark enough for small text */
@@ -544,8 +544,8 @@ h1, h2, h3, h4 {
   height: 100%;
   padding: clamp(18px, 3vw, 40px);
 }
-.bars h4 { font-size: 0.9rem; font-weight: 600; letter-spacing: 0; margin-bottom: 10px; color: var(--ink); }
-.bars h4 span { font-weight: 400; color: var(--mute); }
+.bars-h { margin: 0 0 10px; font-size: 0.9rem; font-weight: 600; letter-spacing: 0; color: var(--ink); }
+.bars-h span { font-weight: 400; color: var(--mute); }
 .bar { display: grid; grid-template-columns: 7.5em 1fr; align-items: center; gap: 10px; font-size: 0.8125rem; color: var(--mute); }
 .bar + .bar { margin-top: 6px; }
 .bar-track { position: relative; height: 26px; }
@@ -1031,4 +1031,22 @@ body, .portrait, .row-visual, .nav, .btn, .site-footer, .note { transition: back
   .art-body { font-size: 1.0625rem; }
   .an-row { grid-template-columns: 1fr; gap: 4px; }
   .an-val { text-align: left; }
+}
+
+/* ---------- Mobile menu: nav drops to its own scrollable row ---------- */
+.feed-link { margin-top: 14px; font-size: var(--step--1); }
+
+@media (max-width: 900px) {
+  .site-header { flex-wrap: wrap; height: auto; padding-top: 12px; row-gap: 10px; }
+  .site-header .nav {
+    display: flex;
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 10px;
+  }
+  .site-header .nav::-webkit-scrollbar { display: none; }
+  .site-header .nav a { flex: 1 0 auto; text-align: center; padding: 8px 12px; }
 }
