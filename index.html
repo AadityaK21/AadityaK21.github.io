@@ -24,7 +24,8 @@
 <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/css/site.css?v=1">
+<script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<link rel="stylesheet" href="/assets/css/site.css?v=2">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Person", "name": "Aaditya Kumawat", "url": "https://aadityakumawat.me/", "email": "mailto:aadityakumawat.iitd@gmail.com", "jobTitle": "B.Tech student, Production and Industrial Engineering", "affiliation": {"@type": "CollegeOrUniversity", "name": "Indian Institute of Technology Delhi"}, "alumniOf": {"@type": "CollegeOrUniversity", "name": "Indian Institute of Technology Delhi"}, "sameAs": ["https://github.com/AadityaK21", "https://www.linkedin.com/in/aaditya-kumawat-9588012b2/", "https://codeforces.com/profile/codeleon"], "knowsAbout": ["Machine learning systems", "LLM inference", "Signal processing", "Storage engines", "C++", "Python"]}</script>
 </head>
 <body>
@@ -37,7 +38,10 @@
     <a href="#about">About</a>
     <a href="#contact">Contact</a>
   </nav>
-  <a class="btn btn-sm btn-dl header-cv" href="/assets/Aaditya_Kumawat_CV.pdf" download aria-label="Download CV (PDF)"><span class="btn-label">Download CV</span><span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9.5M4.2 7.8 8 11.6l3.8-3.8M3 14.2h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch to dark mode"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.7a6.3 6.3 0 0 1 0 12.6z" fill="currentColor"/></svg></button>
+    <a class="btn btn-sm btn-dl header-cv" href="/assets/Aaditya_Kumawat_CV.pdf" download aria-label="Download CV (PDF)"><span class="btn-label">Download CV</span><span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9.5M4.2 7.8 8 11.6l3.8-3.8M3 14.2h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+  </div>
 </header>
 
 <main id="main">
@@ -49,7 +53,10 @@
           <span class="clock num" data-clock>IST</span>
           <span class="today" data-date></span>
         </p>
-        <p class="status"><span class="pulse" aria-hidden="true"></span>Open to Summer 2027 internships</p>
+        <div class="cell-bottom">
+          <p class="lastpush" data-lastpush="AadityaK21" hidden>Last pushed to <a href="https://github.com/AadityaK21">GitHub</a>, <span data-ago></span></p>
+          <p class="status"><span class="pulse" aria-hidden="true"></span>Open to Summer 2027 internships</p>
+        </div>
       </div>
       <div class="cell cell-portrait">
         <figure class="portrait">
@@ -114,18 +121,9 @@ lineage round trip
         <dl class="facts"><div><dt>throughput over static batching</dt><dd>1.65&times;</dd></div><div><dt>lower p99 time to first token</dt><dd>12&times;</dd></div><div><dt>tests</dt><dd>92</dd></div></dl>
         <div class="row-links"><a class="btn btn-sm" href="/work/nanoserve/">Read the case study<span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a><a class="text-link" href="https://github.com/AadityaK21/nanoserve">Code on GitHub</a></div>
       </div>
-      <a class="row-visual " href="/work/nanoserve/" tabindex="-1" aria-label="nanoserve case study"><div class="bars" role="img" aria-label="Output throughput: static batching 61.0 tokens per second, nanoserve 100.4. p99 time to first token: static batching 60.8 seconds, nanoserve 5.2 seconds.">
-  <div>
-    <h4>Output throughput <span>tokens/s, higher is better</span></h4>
-    <div class="bar"><span>Static batching</span><span class="bar-track" style="--w:50.6%"><span class="bar-fill"></span><span class="bar-val">61.0</span></span></div>
-    <div class="bar"><span>nanoserve</span><span class="bar-track" style="--w:83.3%"><span class="bar-fill is-ours"></span><span class="bar-val">100.4</span></span></div>
-  </div>
-  <div>
-    <h4>p99 time to first token <span>seconds, lower is better</span></h4>
-    <div class="bar"><span>Static batching</span><span class="bar-track" style="--w:83.3%"><span class="bar-fill"></span><span class="bar-val">60.8 s</span></span></div>
-    <div class="bar"><span>nanoserve</span><span class="bar-track" style="--w:7.1%"><span class="bar-fill is-ours"></span><span class="bar-val">5.2 s</span></span></div>
-  </div>
-  <p class="bars-note">RTX 4060 Laptop (8 GB), Qwen2.5-0.5B-Instruct in fp16, 32 concurrent requests with lognormal lengths.</p>
+      <a class="row-visual " href="/work/nanoserve/" tabindex="-1" aria-label="nanoserve case study"><div class="sim" data-sim role="img" aria-label="Animation: the same stream of requests served by static batching and by continuous batching with six slots each. Static batching leaves slots idle while it waits for the longest request; continuous batching refills them and finishes more requests.">
+  <canvas aria-hidden="true"></canvas>
+  <p class="sim-note">Same requests, six slots each. Striped slots are idle, waiting for the slowest request in the batch. This is a simulation; the measured numbers are in the case study.</p>
 </div></a>
     </article>
     <article class="row" aria-labelledby="t-st-bemd">
@@ -268,6 +266,6 @@ lineage round trip
   <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
   <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
 </footer>
-<script src="/assets/js/site.js?v=1" defer></script>
+<script src="/assets/js/site.js?v=2" defer></script>
 </body>
 </html>
