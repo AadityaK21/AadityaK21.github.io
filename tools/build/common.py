@@ -78,7 +78,6 @@ def footer():
   <span><a href="{GITHUB}">GitHub</a> &nbsp; <a href="{LINKEDIN}">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
 </footer>
 <script src="/assets/js/site.js?v={VERSION}" defer></script>
-<script data-goatcounter="https://aadityakumawat.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
 """

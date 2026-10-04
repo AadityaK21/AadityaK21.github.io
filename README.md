@@ -32,7 +32,7 @@ python3 tools/build/build.py
 
 `tools/build/og.py` regenerates the preview images; it needs Playwright and a local server on port 8765 (`python3 -m http.server 8765`). Small text fixes can also be made directly in the HTML, but they will be overwritten the next time the generator runs.
 
-Visitor counts use GoatCounter at https://aadityakumawat.goatcounter.com (no cookies).
+Visitor counts: not set up yet. To add GoatCounter, create the account `aadityakumawat` at goatcounter.com, then add its script tag to `footer()` in `tools/build/common.py` and rebuild.
 
 ## Common edits
 
