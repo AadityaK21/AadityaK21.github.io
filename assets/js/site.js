@@ -262,7 +262,7 @@
       img = bctx.createImageData(bw, bh);
 
       var S = Math.min(bw, bh);
-      var spacing = 8.5 * scale;
+      var spacing = (parseFloat(canvas.getAttribute("data-spacing")) || 8.5) * scale;
       omega = (2 * Math.PI * S) / spacing;
       R = new Float32Array(bw * bh);
       T = new Float32Array(bw * bh);
