@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My GPU was waiting, not working | Aaditya Kumawat</title>
+<meta name="description" content="Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.">
+<link rel="canonical" href="https://aadityakumawat.me/notes/gpu-waiting-not-working/">
+<meta name="author" content="Aaditya Kumawat">
+<meta name="theme-color" content="#f1f1ef">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Aaditya Kumawat">
+<meta property="og:title" content="My GPU was waiting, not working | Aaditya Kumawat">
+<meta property="og:description" content="Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.">
+<meta property="og:url" content="https://aadityakumawat.me/notes/gpu-waiting-not-working/">
+<meta property="og:image" content="https://aadityakumawat.me/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="My GPU was waiting, not working | Aaditya Kumawat">
+<meta name="twitter:description" content="Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.">
+<meta name="twitter:image" content="https://aadityakumawat.me/og.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<link rel="stylesheet" href="/assets/css/site.css?v=3">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"My GPU was waiting, not working","description":"Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.","datePublished":"2026-10-05","author":{"@type":"Person","name":"Aaditya Kumawat","url":"https://aadityakumawat.me/"},"mainEntityOfPage":"https://aadityakumawat.me/notes/gpu-waiting-not-working/"}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header wrap" id="top">
+  <a class="logo" href="/" aria-label="Aaditya Kumawat, home">ak<span class="logo-dot"></span></a>
+  <nav class="nav" aria-label="Main">
+    <a href="/#work">Work</a>
+    <a href="/#research">Research</a>
+    <a href="/notes/">Notes</a>
+    <a href="/#about">About</a>
+    <a href="/#contact">Contact</a>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch to dark mode"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.7a6.3 6.3 0 0 1 0 12.6z" fill="currentColor"/></svg></button>
+    <a class="btn btn-sm btn-dl header-cv" href="/assets/Aaditya_Kumawat_CV.pdf" download aria-label="Download CV (PDF)"><span class="btn-label">Download CV</span><span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9.5M4.2 7.8 8 11.6l3.8-3.8M3 14.2h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="cs-head">
+    <a class="back" href="/notes/"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8H3M7 4 3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> All notes</a>
+    <h1 class="art-title">My GPU was waiting, not working</h1>
+    <p class="cs-summary">Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.</p>
+  </div>
+  <div class="art">
+    <aside class="art-aside">
+      <dl>
+        <div><dt>Published</dt><dd><time datetime="2026-10-05">5 October 2026</time></dd></div>
+        <div><dt>Reading time</dt><dd>4 min</dd></div>
+        <div><dt>Project</dt><dd><a class="text-link" href="/work/nanoserve/">nanoserve</a></dd></div>
+      </dl>
+    </aside>
+    <article class="art-body">
+
+<p class="lead">The standard advice about LLM inference is that decoding is limited by memory bandwidth. Every new token means reading all of the model&rsquo;s weights from GPU memory, so the speed limit is how fast you can stream bytes. I built nanoserve, an inference server written from scratch, expecting to optimise for exactly that. The first careful measurement said I was optimising the wrong thing.</p>
+
+<h2>The number that didn&rsquo;t fit</h2>
+<p>Qwen2.5-0.5B in fp16 is 943 MiB of weights, and my laptop&rsquo;s RTX 4060 sustains about 210 to 226 GB/s on a plain memory copy. If memory were the limit, one decode step at batch size 1 should take about 4.5 ms.</p>
+<div class="tbl"><table><thead><tr><th></th><th class="r">Windows 11</th><th class="r">WSL2 Ubuntu</th></tr></thead><tbody><tr><td>Memory-bandwidth floor per step</td><td class="r">~4.5 ms</td><td class="r">~4.5 ms</td></tr><tr><td>Actual batch-1 step (eager transformers)</td><td class="r">23.7 ms</td><td class="r">16.6 ms</td></tr><tr><td>Cost of launching one small kernel</td><td class="r">7.8&ndash;15 &micro;s</td><td class="r">6.8&ndash;9.2 &micro;s</td></tr><tr><td>GPU utilisation during decode</td><td class="r"><strong>18%</strong></td><td class="r"><strong>22%</strong></td></tr></tbody></table></div>
+<p>The step was four to five times slower than the bandwidth floor. Profiling showed why: the GPU was busy for only about a fifth of each step. The rest of the time it sat idle while the CPU issued the next of roughly 1,000 to 1,350 small kernels.</p>
+<div class="anatomy" role="img" aria-label="Share of each batch-1 decode step the GPU spent computing: 18 percent on Windows, 22 percent on WSL2. The rest was spent waiting for the next kernel launch.">
+  <div class="an-row"><span class="an-label">Windows 11</span><span class="an-track"><span class="an-busy" style="width:18%"></span></span><span class="an-val">18% busy</span></div>
+  <div class="an-row"><span class="an-label">WSL2 Ubuntu</span><span class="an-track"><span class="an-busy" style="width:22%"></span></span><span class="an-val">22% busy</span></div>
+  <p class="an-key"><i class="k-busy"></i>GPU computing <i class="k-idle"></i>GPU idle, waiting for the CPU to launch the next kernel</p>
+</div>
+
+<h2>The tell: batching was almost free</h2>
+<p>If most of each step is a fixed launch cost, a bigger batch should cost almost nothing extra. That is exactly what happened. Step time went from 28 ms at batch 1 to 34 ms at batch 32, so throughput went from 35.5 to 941.8 tokens per second: a 26&times; gain for 20% more time per step.</p>
+
+<h2>I blamed Windows first, and I was wrong</h2>
+<p>My first theory was the Windows display driver model (WDDM), which routes kernel launches through the operating system&rsquo;s scheduler. I predicted Linux would be much faster. The measurements didn&rsquo;t back that up:</p>
+<ul>
+<li>Two consecutive runs of the same Linux setup measured the small-kernel cost at 6.8 &micro;s and 9.2 &micro;s. That 35% spread overlaps the Windows range.</li>
+<li>The two setups also ran different PyTorch builds, which changed the number of device ops per step from 1,350 to 1,014 for identical model code. That is a library difference, not an OS one.</li>
+<li>Utilisation was 18% against 22%. Both were overhead-bound.</li>
+</ul>
+<p class="pull">On this hardware, the number of kernels is what moves decode time. The operating system is not.</p>
+
+<h2>What I changed because of it</h2>
+<p>Once the bottleneck was clear, every change that paid off was one that cut the number of ops per step:</p>
+<div class="tbl"><table><thead><tr><th>Change</th><th>Why it mattered here</th></tr></thead><tbody><tr><td>RoPE cos/sin computed once per step</td><td>Positions are the same in all 24 layers; the old code built 48 identical tensors per step</td></tr><tr><td>Fused RMSNorm</td><td>Replaced an 8-kernel hand-written norm used at 48 places per step</td></tr><tr><td>Grouped-query attention inside SDPA</td><td>Stopped materialising a 7&times; expanded copy of K and V</td></tr><tr><td>One pinned host-to-device copy for step metadata</td><td>Was six separate small transfers per step</td></tr></tbody></table></div>
+<p>Together with a faster way of mapping tokens to cache slots, these took the batch-1 step from 33.7 ms to 28.2 ms, 16% faster.</p>
+<p>Then the fused Triton paged-attention kernel replaced about ten ops per layer with one. Device ops per step fell from 1,014 to 682, GPU utilisation at batch 32 rose from 23% to 36%, and nanoserve clearly beat eager transformers for the first time: 1.23&times; at batch 8.</p>
+<figure class="cs-figure"><img src="/assets/img/nanoserve-kernel.webp" width="1540" height="588" alt="Left: attention time against context length for the torch and Triton backends. Right: the Triton kernel's speed-up, falling from about 12 times at short context to about 2 to 4 times at 4096 tokens." loading="lazy" decoding="async"><figcaption>The kernel&rsquo;s speed-up shrinks as context grows, which surprised me. At batch 1 the torch path takes about the same time at every context length, because it is paying for ten kernel launches, not for the data.</figcaption></figure>
+
+<h2>Four measurements that lied first</h2>
+<p>Before any of these numbers could be trusted, four bugs in the measurement itself had to go. Each one produced a plausible-looking wrong answer.</p>
+<ul>
+<li><strong>Clock ramp.</strong> The GPU idles at 210 MHz and boosts to 2,595 MHz. Whatever ran first was measured cold, which once produced &ldquo;batch 32 is faster than batch 1&rdquo; and a fake 3.4&times; win. Now there are 8 seconds of sustained work before measuring, repeated before every row.</li>
+<li><strong>Double-counted kernels.</strong> The profiler attributes time to both an op and its kernel. Summing both reported 166% GPU utilisation.</li>
+<li><strong>Mismatched runs.</strong> Busy time from a profiled run was being divided by wall time from an unprofiled one.</li>
+<li><strong>Noise.</strong> Every configuration is now timed twice and flagged if the runs disagree by more than 15%.</li>
+</ul>
+
+<h2>Where this leaves nanoserve</h2>
+<p>Against vLLM in its strongest setup (torch.compile plus CUDA graphs), on the same GPU and the same requests, the honest comparison is:</p>
+<div class="tbl"><table><thead><tr><th>Server</th><th class="r">Output tokens/s</th><th class="r">vs vLLM</th></tr></thead><tbody><tr><td>vLLM, compiled with CUDA graphs</td><td class="r">2,103.5</td><td class="r">1.00&times;</td></tr><tr><td>nanoserve, continuous batching + Triton</td><td class="r">663.0</td><td class="r">0.32&times;</td></tr><tr><td>Static batching, best batch size</td><td class="r">236.9</td><td class="r">0.11&times;</td></tr></tbody></table></div>
+<p>The biggest part of that gap is the same story. vLLM captures its decode step as CUDA graphs once and replays them, while nanoserve re-issues around 680 kernels every step from Python. So the next change is CUDA graphs for decode. The shapes are static, so the step can be captured once and replayed. That attacks the time spent waiting, which is still most of each step, instead of the time spent working.</p>
+
+<h2>The takeaway</h2>
+<p>Measure the shape of the bottleneck on your own hardware before optimising for it. &ldquo;Decode is memory-bound&rdquo; may well hold for a large model on a datacenter GPU. For a 0.5B model on a laptop GPU, the real step took four to five times longer than the memory floor, and the gap was all launch overhead.</p>
+
+    </article>
+  </div>
+  <a class="next" href="/notes/gaussian-blur-beat-my-method/"><span class="next-label">Next note</span><span class="next-title">A Gaussian blur beat my method</span></a>
+</main>
+<footer class="site-footer wrap">
+  <span>&copy; <span data-year>2026</span> Aaditya Kumawat</span>
+  <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
+  <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
+</footer>
+<script src="/assets/js/site.js?v=3" defer></script>
+</body>
+</html>

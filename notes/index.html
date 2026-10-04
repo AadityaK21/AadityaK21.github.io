@@ -3,22 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Page not found | Aaditya Kumawat</title>
-<meta name="description" content="This page does not exist.">
-<link rel="canonical" href="https://aadityakumawat.me/404.html">
+<title>Notes | Aaditya Kumawat</title>
+<meta name="description" content="Short write-ups by Aaditya Kumawat on what his projects measured, including the parts that didn't go to plan.">
+<link rel="canonical" href="https://aadityakumawat.me/notes/">
 <meta name="author" content="Aaditya Kumawat">
 <meta name="theme-color" content="#f1f1ef">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Aaditya Kumawat">
-<meta property="og:title" content="Page not found | Aaditya Kumawat">
-<meta property="og:description" content="This page does not exist.">
-<meta property="og:url" content="https://aadityakumawat.me/404.html">
+<meta property="og:title" content="Notes | Aaditya Kumawat">
+<meta property="og:description" content="Short write-ups by Aaditya Kumawat on what his projects measured, including the parts that didn't go to plan.">
+<meta property="og:url" content="https://aadityakumawat.me/notes/">
 <meta property="og:image" content="https://aadityakumawat.me/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Page not found | Aaditya Kumawat">
-<meta name="twitter:description" content="This page does not exist.">
+<meta name="twitter:title" content="Notes | Aaditya Kumawat">
+<meta name="twitter:description" content="Short write-ups by Aaditya Kumawat on what his projects measured, including the parts that didn't go to plan.">
 <meta name="twitter:image" content="https://aadityakumawat.me/og.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
@@ -44,10 +44,26 @@
   </div>
 </header>
 
-<main id="main" class="wrap lost">
-  <h1>404</h1>
-  <p class="cs-summary">This page doesn&rsquo;t exist. It may have moved when the site was rebuilt.</p>
-  <p><a class="btn" href="/">Go to the home page<span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a></p>
+<main id="main" class="wrap">
+  <div class="cs-head">
+    <a class="back" href="/"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8H3M7 4 3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Home</a>
+    <h1 class="cs-title">Notes</h1>
+    <p class="cs-summary">Short write-ups on what my projects measured, including the parts that didn&rsquo;t go to plan.</p>
+  </div>
+  <div class="notes-index">
+    <div class="list">
+      <article class="item">
+        <h2 class="item-title"><a href="/notes/gpu-waiting-not-working/">My GPU was waiting, not working</a></h2>
+        <p class="item-text">Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.<span class="by">From <a class="text-link" href="/work/nanoserve/">nanoserve</a></span></p>
+        <p class="item-side"><span><time datetime="2026-10-05">5 October 2026</time></span><span>4 min read</span></p>
+      </article>
+      <article class="item">
+        <h2 class="item-title"><a href="/notes/gaussian-blur-beat-my-method/">A Gaussian blur beat my method</a></h2>
+        <p class="item-text">What happened when I tested the metric instead of the method, on my direction-adaptive EMD for fingerprints.<span class="by">From <a class="text-link" href="/work/st-bemd/">ST-BEMD</a></span></p>
+        <p class="item-side"><span><time datetime="2026-10-05">5 October 2026</time></span><span>4 min read</span></p>
+      </article>
+    </div>
+  </div>
 </main>
 <footer class="site-footer wrap">
   <span>&copy; <span data-year>2026</span> Aaditya Kumawat</span>

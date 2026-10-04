@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Gaussian blur beat my method | Aaditya Kumawat</title>
+<meta name="description" content="What happened when I tested the metric instead of the method, on my direction-adaptive EMD for fingerprints.">
+<link rel="canonical" href="https://aadityakumawat.me/notes/gaussian-blur-beat-my-method/">
+<meta name="author" content="Aaditya Kumawat">
+<meta name="theme-color" content="#f1f1ef">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Aaditya Kumawat">
+<meta property="og:title" content="A Gaussian blur beat my method | Aaditya Kumawat">
+<meta property="og:description" content="What happened when I tested the metric instead of the method, on my direction-adaptive EMD for fingerprints.">
+<meta property="og:url" content="https://aadityakumawat.me/notes/gaussian-blur-beat-my-method/">
+<meta property="og:image" content="https://aadityakumawat.me/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A Gaussian blur beat my method | Aaditya Kumawat">
+<meta name="twitter:description" content="What happened when I tested the metric instead of the method, on my direction-adaptive EMD for fingerprints.">
+<meta name="twitter:image" content="https://aadityakumawat.me/og.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<link rel="stylesheet" href="/assets/css/site.css?v=3">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"A Gaussian blur beat my method","description":"What happened when I tested the metric instead of the method, on my direction-adaptive EMD for fingerprints.","datePublished":"2026-10-05","author":{"@type":"Person","name":"Aaditya Kumawat","url":"https://aadityakumawat.me/"},"mainEntityOfPage":"https://aadityakumawat.me/notes/gaussian-blur-beat-my-method/"}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header wrap" id="top">
+  <a class="logo" href="/" aria-label="Aaditya Kumawat, home">ak<span class="logo-dot"></span></a>
+  <nav class="nav" aria-label="Main">
+    <a href="/#work">Work</a>
+    <a href="/#research">Research</a>
+    <a href="/notes/">Notes</a>
+    <a href="/#about">About</a>
+    <a href="/#contact">Contact</a>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch to dark mode"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.7a6.3 6.3 0 0 1 0 12.6z" fill="currentColor"/></svg></button>
+    <a class="btn btn-sm btn-dl header-cv" href="/assets/Aaditya_Kumawat_CV.pdf" download aria-label="Download CV (PDF)"><span class="btn-label">Download CV</span><span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9.5M4.2 7.8 8 11.6l3.8-3.8M3 14.2h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="cs-head">
+    <a class="back" href="/notes/"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8H3M7 4 3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> All notes</a>
+    <h1 class="art-title">A Gaussian blur beat my method</h1>
+    <p class="cs-summary">What happened when I tested the metric instead of the method, on my direction-adaptive EMD for fingerprints.</p>
+  </div>
+  <div class="art">
+    <aside class="art-aside">
+      <dl>
+        <div><dt>Published</dt><dd><time datetime="2026-10-05">5 October 2026</time></dd></div>
+        <div><dt>Reading time</dt><dd>4 min</dd></div>
+        <div><dt>Project</dt><dd><a class="text-link" href="/work/st-bemd/">ST-BEMD</a></dd></div>
+      </dl>
+    </aside>
+    <article class="art-body">
+
+<p class="lead">ST-BEMD is a 2-D empirical mode decomposition I built this summer. It bends its envelopes along the local ridge direction, so on fingerprints it should keep each ridge&rsquo;s orientation intact better than the standard, direction-blind version. On 30 real prints, orientation error dropped from 13.71&deg; to 8.25&deg;, and every single print improved. This note is about why that number does not mean what it looks like it means.</p>
+
+<h2>Two changes, one name</h2>
+<p>Compared with the 2003 baseline, ST-BEMD changes two things at once. The envelope goes from a global RBF interpolation to a local weighted average, and the averaging kernel goes from a circle to an ellipse stretched along the ridges. The method is named after the second change, so I ran a version with only the first one: the same local averaging, but with a circular kernel.</p>
+<div class="tbl"><table><thead><tr><th>Version</th><th class="r">Orientation error (30 prints)</th><th class="r">Step</th></tr></thead><tbody><tr><td>Baseline: global RBF, circular</td><td class="r">13.71&deg;</td><td class="r"></td></tr><tr><td>Local average, circular kernel</td><td class="r">9.43&deg;</td><td class="r">&minus;4.29&deg; from the envelope</td></tr><tr><td>ST-BEMD: local average, elliptical kernel</td><td class="r">8.25&deg;</td><td class="r">&minus;1.18&deg; from the anisotropy</td></tr></tbody></table></div>
+<p>About 78% of the improvement comes from the local envelope, which is an existing idea, not from the anisotropy the method is named after. The anisotropy&rsquo;s own effect is real (better on 70% of prints, p = 0.001), but small. Worse, it shrinks as ridges curve: +1.42&deg;, +1.13&deg; and +0.20&deg; from low to high curvature. The whole premise of the method predicts the opposite.</p>
+
+<h2>Then I tested the metric</h2>
+<p>The orientation error compares the orientation field of the extracted layer with the orientation field of the input. That made me wonder how estimators that know nothing about orientation would score.</p>
+<div class="tbl"><table><thead><tr><th>Estimator</th><th class="r">Orientation error</th></tr></thead><tbody><tr><td>Return the input unchanged</td><td class="r"><strong>0.00&deg;</strong></td></tr><tr><td>Subtract a Gaussian blur (&sigma; = 4)</td><td class="r"><strong>4.23&deg;</strong></td></tr><tr><td>Subtract a Gaussian blur (&sigma; = 1)</td><td class="r">7.26&deg;</td></tr><tr><td>ST-BEMD</td><td class="r">8.25&deg;</td></tr><tr><td>Local average, circular kernel</td><td class="r">9.43&deg;</td></tr><tr><td>Baseline</td><td class="r">13.71&deg;</td></tr></tbody></table></div>
+<p>Doing nothing scores a perfect zero. Subtracting a blurred copy of the image scores about twice as well as my method. The metric&rsquo;s best possible answer is to leave the input alone.</p>
+
+<h2>What the metric was really measuring</h2>
+<p>To check this properly, I picked the blur width on half the prints and scored on the other half, so the control couldn&rsquo;t be tuned to the test set. I also added a second measure, IMF validity: how close the extracted layer is to having zero local mean, which is the thing sifting is supposed to achieve. Lower is better.</p>
+<div class="tbl"><table><thead><tr><th>Held out, 15 prints</th><th class="r">Orientation error</th><th class="r">IMF validity</th></tr></thead><tbody><tr><td>Baseline</td><td class="r">15.91&deg;</td><td class="r"><strong>0.131</strong></td></tr><tr><td>Local average, circular kernel</td><td class="r">10.08&deg;</td><td class="r">0.210</td></tr><tr><td>ST-BEMD</td><td class="r">9.34&deg;</td><td class="r">0.185</td></tr><tr><td>Gaussian blur control</td><td class="r"><strong>4.86&deg;</strong></td><td class="r">0.383</td></tr></tbody></table></div>
+<p>Across all ten estimators the two measures are anti-correlated at r = &minus;0.94. Scoring well on orientation means having sifted less.</p>
+<figure class="cs-figure"><img src="/assets/img/stbemd-metric-tradeoff.webp" width="1056" height="718" alt="Scatter of orientation error against IMF validity. The Gaussian blur controls sit top left: low orientation error but poor validity. The baseline sits bottom right. ST-BEMD and the circular local version are in between." loading="lazy" decoding="async"><figcaption>The two measures pull against each other. The blur buys its orientation score by not doing the job.</figcaption></figure>
+<p class="pull">The orientation metric was largely measuring how little each estimator sifted.</p>
+<p>So the 13.71&deg; to 8.25&deg; result supports a narrower claim: ST-BEMD&rsquo;s envelope disturbs the orientation field less than a global interpolant does. It does not show that it recovers orientation better. One small point does survive cleanly: against the circular local version, ST-BEMD is better on both measures (9.34&deg; vs 10.08&deg;, and 0.185 vs 0.210). Same machinery, only the kernel shape differs.</p>
+
+<h2>A test that doing nothing can&rsquo;t win as easily</h2>
+<p>To break the circularity, I took the reference orientation from the clean print and gave every method a noisy copy, so preserving the input is no longer enough. I also measured orientation with two unrelated instruments, a bank of Gabor filters and the structure tensor, so the method couldn&rsquo;t be graded by the same tool it steers by.</p>
+<div class="tbl"><table><thead><tr><th>Noise level</th><th class="r">Baseline</th><th class="r">ST-BEMD</th><th class="r">ST-BEMD ahead by</th></tr></thead><tbody><tr><td>20 dB (light)</td><td class="r">10.04&deg;</td><td class="r">10.97&deg;</td><td class="r">&minus;0.93&deg;</td></tr><tr><td>10 dB</td><td class="r">12.87&deg;</td><td class="r">12.57&deg;</td><td class="r">+0.30&deg;</td></tr><tr><td>5 dB (heavy)</td><td class="r">18.33&deg;</td><td class="r">15.06&deg;</td><td class="r"><strong>+3.27&deg;</strong></td></tr></tbody></table></div>
+<figure class="cs-figure"><img src="/assets/img/stbemd-noise-test.webp" width="978" height="640" alt="Orientation error against the clean print as noise increases from 20 dB to 5 dB. ST-BEMD grows more slowly than the baseline and ends at 15.1 degrees against 18.3. The do-nothing line stays lowest throughout." loading="lazy" decoding="async"><figcaption>With the reference taken from the clean print, ST-BEMD degrades more gracefully than the baseline as noise rises. Doing nothing is still the lowest line.</figcaption></figure>
+<p>With light noise ST-BEMD is slightly worse. With heavy noise it is ahead by 3.3&deg; (3.6&deg; with the second instrument), and both instruments agree on the ranking. That is the claim I can defend: <strong>direction-adaptive local envelopes are more robust to noise than global RBF interpolation.</strong></p>
+<p>It is still not a clean win. Doing nothing remains the lowest-error entry, and the blur still beats every EMD method on orientation. This protocol is necessary, not sufficient.</p>
+
+<h2>What I&rsquo;d tell myself in May</h2>
+<p>Build the control before the method. If a metric gives its best score to an estimator that does nothing, it cannot reward an estimator for doing something. I only found this because I tried to beat my own number with something deliberately dumb, and it won.</p>
+
+    </article>
+  </div>
+  <a class="next" href="/notes/gpu-waiting-not-working/"><span class="next-label">Next note</span><span class="next-title">My GPU was waiting, not working</span></a>
+</main>
+<footer class="site-footer wrap">
+  <span>&copy; <span data-year>2026</span> Aaditya Kumawat</span>
+  <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
+  <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
+</footer>
+<script src="/assets/js/site.js?v=3" defer></script>
+</body>
+</html>
