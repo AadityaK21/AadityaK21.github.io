@@ -26,7 +26,7 @@
 <link rel="alternate" type="application/atom+xml" title="Notes by Aaditya Kumawat" href="/notes/feed.xml">
 <link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
-<link rel="stylesheet" href="/assets/css/site.css?v=4">
+<link rel="stylesheet" href="/assets/css/site.css?v=5">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -48,7 +48,7 @@
 <main id="main" class="wrap">
   <div class="cs-head">
     <a class="back" href="/#work"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8H3M7 4 3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> All work</a>
-    <h1 class="cs-title">Legal audio</h1>
+    <h1 class="cs-title"><span style="view-transition-name: vt-legal-audio">Legal audio</span></h1>
     <p class="cs-summary">A fully local pipeline that turns court audio into speaker-attributed notes, where every line links back to the moment it was said. Nothing leaves the machine.</p>
     <dl class="cs-meta"><div><dt>When</dt><dd>May&ndash;Jul 2026</dd></div><div><dt>Role</dt><dd>Research intern (remote)</dd></div><div><dt>Where</dt><dd>Applied AI Laboratory, HEC Lausanne</dd></div><div><dt>Stack</dt><dd>Python, Whisper, pyannote, local LLMs</dd></div></dl>
   </div>
@@ -68,14 +68,15 @@
 <p>I also built a speaker-label bias probe. It re-runs note selection on transcripts whose words are identical but whose speaker labels are anonymised or shuffled, and compares the result against a resampling noise floor. Relabelling alone shifted one speaker&rsquo;s share of the notes by 40.4 points, a failure that WER, DER and verbatim rate cannot see.</p>
 </div></section><section class="cs-section"><h2>What the numbers don&rsquo;t say</h2><div class="cs-body">
 <p class="note">Supreme Court oral argument is a floor, not a typical case: the recordings are unusually clean and the speakers unusually clear. Depositions and trial-court audio will be harder. The code is private.</p>
+<p>The speaker-label probe, and the confound I had to fix before trusting it, are written up in the note <a class="text-link" href="/notes/same-words-different-notes/">Same words, different notes</a>.</p>
 </div></section>
-  <a class="next" href="/work/st-bemd/"><span class="next-label">Next project</span><span class="next-title">ST-BEMD</span></a>
+  <a class="next" href="/work/st-bemd/"><span class="next-label">Next project</span><span class="next-title"><span style="view-transition-name: vt-st-bemd">ST-BEMD</span></span></a>
 </main>
 <footer class="site-footer wrap">
   <span>&copy; <span data-year>2026</span> Aaditya Kumawat</span>
   <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
   <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
 </footer>
-<script src="/assets/js/site.js?v=4" defer></script>
+<script src="/assets/js/site.js?v=5" defer></script>
 </body>
 </html>

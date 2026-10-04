@@ -6,7 +6,7 @@ LINKEDIN = "https://www.linkedin.com/in/aaditya-kumawat-9588012b2/"
 CODEFORCES = "https://codeforces.com/profile/codeleon"
 ORCID = "https://orcid.org/0009-0001-2877-2219"
 CV = "/assets/Aaditya_Kumawat_CV.pdf"
-VERSION = "4"
+VERSION = "5"
 
 ARROW = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 DOWN = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9.5M4.2 7.8 8 11.6l3.8-3.8M3 14.2h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'

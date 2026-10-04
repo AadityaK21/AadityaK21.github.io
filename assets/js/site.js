@@ -381,6 +381,43 @@
     });
   }
 
+  /* ---- Codeforces chart tooltips ---- */
+  document.querySelectorAll(".cf-plot").forEach(function (plot) {
+    var tip = plot.querySelector(".cf-tip");
+    var pts = plot.querySelectorAll(".cf-pt");
+    if (!tip) return;
+    var active = null;
+    var show = function (b) {
+      active = b;
+      tip.textContent = b.getAttribute("data-tip");
+      tip.style.left = b.style.left;
+      tip.style.top = b.style.top;
+      var x = parseFloat(b.style.left), y = parseFloat(b.style.top);
+      tip.classList.toggle("is-left", x > 68);
+      tip.classList.toggle("is-right", x < 14);
+      tip.classList.toggle("is-below", y < 38);
+      tip.hidden = false;
+      pts.forEach(function (p) { p.setAttribute("aria-expanded", p === b ? "true" : "false"); });
+    };
+    var hide = function () {
+      active = null;
+      tip.hidden = true;
+      pts.forEach(function (p) { p.setAttribute("aria-expanded", "false"); });
+    };
+    var pressed = false;
+    pts.forEach(function (b) {
+      b.setAttribute("aria-expanded", "false");
+      b.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") show(b); });
+      b.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") hide(); });
+      b.addEventListener("pointerdown", function () { pressed = true; });
+      // Keyboard focus opens the tip; a tap or click is handled by the click toggle instead.
+      b.addEventListener("focus", function () { if (!pressed) show(b); });
+      b.addEventListener("blur", function () { pressed = false; hide(); });
+      b.addEventListener("click", function () { pressed = false; if (active === b && !tip.hidden && b.matches(":focus-visible")) return; if (active === b) hide(); else show(b); });
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") hide(); });
+  });
+
   /* ---- Batching simulation (nanoserve) ----
      The same stream of requests goes to two schedulers with the same number of
      slots. Static batching waits for the longest request in a batch before taking

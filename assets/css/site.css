@@ -1050,3 +1050,86 @@ body, .portrait, .row-visual, .nav, .btn, .site-footer, .note { transition: back
   .site-header .nav::-webkit-scrollbar { display: none; }
   .site-header .nav a { flex: 1 0 auto; text-align: center; padding: 8px 12px; }
 }
+
+/* ---------- Codeforces rating chart ---------- */
+.cf { margin: 0 0 clamp(28px, 4vw, 48px); }
+.cf-cap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; margin-bottom: 18px; }
+.cf-title { font-size: var(--step-1); font-weight: 650; letter-spacing: -0.02em; color: var(--ink); }
+.cf-sub { font-size: var(--step--1); color: var(--mute); }
+.cf-frame { padding-left: 48px; }
+.cf-plot { position: relative; height: clamp(200px, 24vw, 280px); }
+.cf-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.cf-grid { stroke: var(--rule); stroke-width: 1; }
+.cf-cm { stroke: var(--signal); stroke-width: 1.5; stroke-dasharray: 5 5; }
+.cf-line { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.cf-y { position: absolute; left: -48px; width: 40px; transform: translateY(-50%); text-align: right; font-size: 0.75rem; color: var(--mute); font-variant-numeric: tabular-nums; }
+.cf-th { position: absolute; left: 6px; transform: translateY(-125%); font-size: 0.75rem; color: var(--mute); }
+.cf-pt {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+.cf-pt::after {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  transition: transform 0.15s ease;
+}
+.cf-pt.is-cm::after { background: var(--signal); border-color: var(--signal); }
+.cf-pt:hover::after, .cf-pt:focus-visible::after, .cf-pt[aria-expanded="true"]::after { transform: scale(1.35); }
+.cf-pt:focus-visible { outline-offset: 0; }
+.cf-lab { position: absolute; transform: translate(-50%, -190%); font-size: 0.8125rem; font-weight: 650; color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; pointer-events: none; }
+.cf-lab.is-below { transform: translate(14px, -50%); }
+.cf-lab.is-note { font-weight: 500; color: var(--mute); transform: translate(12px, 25%); }
+.cf-lab.is-end { transform: translate(-50%, -190%); }
+.cf-x { position: relative; height: 24px; margin-top: 8px; border-top: 1px solid var(--ink); }
+.cf-x span { position: absolute; top: 6px; transform: translateX(-50%); font-size: 0.75rem; color: var(--mute); white-space: nowrap; }
+.cf-tip {
+  position: absolute;
+  z-index: 5;
+  min-width: 190px;
+  max-width: 260px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  white-space: pre-line;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 16px));
+  box-shadow: 0 6px 24px rgba(0,0,0,.18);
+}
+.cf-tip.is-left { transform: translate(-100%, calc(-100% - 16px)); }
+.cf-tip.is-right { transform: translate(0, calc(-100% - 16px)); }
+.cf-tip.is-below { transform: translate(-50%, 18px); }
+.cf-tip.is-below.is-left { transform: translate(-100%, 18px); }
+.cf-table { margin-top: 14px; font-size: var(--step--1); }
+.cf-table summary { cursor: pointer; color: var(--ink-2); width: max-content; }
+.cf-table summary:hover { color: var(--ink); }
+@media (max-width: 640px) {
+  .cf-frame { padding-left: 38px; }
+  .cf-y { left: -38px; width: 32px; }
+  .cf-lab.is-note { display: none; }
+}
+
+.cf-tip.is-below.is-right { transform: translate(0, 18px); }
+
+/* ---------- Page transitions: titles glide between pages ---------- */
+@view-transition { navigation: auto; }
+::view-transition-group(*) { animation-duration: 0.45s; animation-timing-function: cubic-bezier(.2,.8,.2,1); }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.3s; }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}
+/* an element with a view-transition-name must be a single box, or the transition is skipped */
+[style*="view-transition-name"] { display: inline-block; }

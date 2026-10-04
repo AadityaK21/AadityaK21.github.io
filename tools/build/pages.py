@@ -30,13 +30,13 @@ def page(slug, title_tag, desc, title, summary, meta_items, hero_html, hero_cls,
 <main id="main" class="wrap">
   <div class="cs-head">
     <a class="back" href="/#work">{BACK} All work</a>
-    <h1 class="cs-title">{title}</h1>
+    <h1 class="cs-title"><span style="view-transition-name: vt-{slug}">{title}</span></h1>
     <p class="cs-summary">{summary}</p>
     {meta(meta_items)}
   </div>
   <div class="cs-hero-visual {hero_cls}">{hero_html}</div>
   {''.join(sections)}
-  <a class="next" href="/work/{nxt}/"><span class="next-label">Next project</span><span class="next-title">{NAMES[nxt]}</span></a>
+  <a class="next" href="/work/{nxt}/"><span class="next-label">Next project</span><span class="next-title"><span style="view-transition-name: vt-{nxt}">{NAMES[nxt]}</span></span></a>
 </main>
 """ + footer()
 
@@ -163,6 +163,7 @@ def build():
 """),
             section("What the numbers don&rsquo;t say", """
 <p class="note">Supreme Court oral argument is a floor, not a typical case: the recordings are unusually clean and the speakers unusually clear. Depositions and trial-court audio will be harder. The code is private.</p>
+<p>The speaker-label probe, and the confound I had to fix before trusting it, are written up in the note <a class="text-link" href="/notes/same-words-different-notes/">Same words, different notes</a>.</p>
 """),
         ])))
 

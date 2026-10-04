@@ -8,6 +8,41 @@
   <updated>2026-10-05T00:00:00+05:30</updated>
   <author><name>Aaditya Kumawat</name><uri>https://aadityakumawat.me/</uri></author>
   <entry>
+    <title>Same words, different notes</title>
+    <link href="https://aadityakumawat.me/notes/same-words-different-notes/"/>
+    <id>https://aadityakumawat.me/notes/same-words-different-notes/</id>
+    <updated>2026-10-05T00:00:00+05:30</updated>
+    <summary>Changing only the speaker labels on a court transcript moved one speaker’s share of my pipeline’s notes by 40 points. What that does and doesn’t show.</summary>
+    <content type="html">
+&lt;p class=&quot;lead&quot;&gt;During my research internship at the Applied AI Laboratory, HEC Lausanne, I built a fully local pipeline that turns court audio into notes. In one mode a local language model reads a numbered transcript and only picks which sentences go into the notes; it cannot change a word. So every note is verbatim, and every accuracy metric I had said the pipeline was working. None of them asked whether the notes were fair to the people speaking.&lt;/p&gt;
+
+&lt;h2&gt;The probe&lt;/h2&gt;
+&lt;p&gt;Keep the transcript byte-for-byte identical, change only the speaker labels, run the selection again, and compare. Three conditions:&lt;/p&gt;
+&lt;div class=&quot;tbl&quot;&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Condition&lt;/th&gt;&lt;th&gt;What changes&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Control&lt;/td&gt;&lt;td&gt;Nothing. The identical transcript is selected again, to see how much the selection moves on its own.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Anonymised&lt;/td&gt;&lt;td&gt;Every label becomes SPEAKER_XX, so the model can no longer tell the speakers apart.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Permuted&lt;/td&gt;&lt;td&gt;Labels are shifted by one, so the same labels sit on different people.&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;
+&lt;p&gt;For each condition I measured every speaker&amp;rsquo;s share of the selected lines and how far it moved from the original run. A shift only counts as evidence if it is at least 5 points and at least twice whatever the control moved.&lt;/p&gt;
+
+&lt;h2&gt;The first run was confounded&lt;/h2&gt;
+&lt;p&gt;My first anonymised run used a plain &amp;ldquo;SPEAKER&amp;rdquo; label. It was shorter than the real labels, so more lines fit in each window the model reads, and the transcript was split at different points: windows of 155, 175, 187, 176 and 61 lines against the original 151, 178, 176, 173 and 84. That run changed two things at once, so its 10.7-point shift could not be blamed on the labels.&lt;/p&gt;
+&lt;p&gt;The fix was a label of exactly the same width, SPEAKER_XX, and a rule: any condition whose windows don&amp;rsquo;t match the original is reported but never counted.&lt;/p&gt;
+
+&lt;h2&gt;The result&lt;/h2&gt;
+&lt;div class=&quot;tbl&quot;&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Condition&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;Overlap with original selection&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;Largest shift in one speaker&amp;rsquo;s share&lt;/th&gt;&lt;th class=&quot;r&quot;&gt;Counts as evidence&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Control&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;100%&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;0 points&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;This is the floor&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Anonymised&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;18%&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&lt;strong&gt;40.4 points&lt;/strong&gt;&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;&lt;strong&gt;Yes&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Permuted&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;41%&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;3.6 points&lt;/td&gt;&lt;td class=&quot;r&quot;&gt;No&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;
+&lt;p&gt;Removing who-said-what replaced most of the selection and moved one speaker&amp;rsquo;s share of the notes by 40.4 points. The words were identical.&lt;/p&gt;
+&lt;p class=&quot;pull&quot;&gt;Word error rate, diarization error, verbatim rate and the judge all score these two sets of notes the same. Only the probe saw the difference.&lt;/p&gt;
+
+&lt;h2&gt;What it does and doesn&amp;rsquo;t show&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;It shows&lt;/strong&gt; that what gets selected depends on the labels, not just the words. No accuracy metric in the pipeline checks for that.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;It doesn&amp;rsquo;t show&lt;/strong&gt; that the model favours particular people. Swapping who is who moved shares by only 3.6 points, below the bar. The more likely reading is that the model uses the labels to follow the structure of the hearing, who is asking and who is answering, and selects differently when that structure disappears.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;It is one case:&lt;/strong&gt; a 62-minute Supreme Court argument with 10 speakers. That makes it a finding to chase, not a result to generalise.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Why this matters for diarization&lt;/h2&gt;
+&lt;p&gt;If removing the labels can move a speaker&amp;rsquo;s share of the notes by 40 points, then the labels a diarizer produces are not just a detail of the transcript. Diarization error on this audio was 7.9%, and overlapping speech, where two people talk at once, is one of the hardest cases for a diarizer. A turn given to the wrong speaker could change what ends up in the notes.&lt;/p&gt;
+&lt;p&gt;Measuring how diarization errors, especially in overlapping speech, carry through into what a summary selects is the next thing I want to study.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
     <title>My GPU was waiting, not working</title>
     <link href="https://aadityakumawat.me/notes/gpu-waiting-not-working/"/>
     <id>https://aadityakumawat.me/notes/gpu-waiting-not-working/</id>

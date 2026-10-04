@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Same words, different notes | Aaditya Kumawat</title>
+<meta name="description" content="Changing only the speaker labels on a court transcript moved one speaker’s share of my pipeline’s notes by 40 points. What that does and doesn’t show.">
+<link rel="canonical" href="https://aadityakumawat.me/notes/same-words-different-notes/">
+<meta name="author" content="Aaditya Kumawat">
+<meta name="theme-color" content="#f1f1ef">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Aaditya Kumawat">
+<meta property="og:title" content="Same words, different notes | Aaditya Kumawat">
+<meta property="og:description" content="Changing only the speaker labels on a court transcript moved one speaker’s share of my pipeline’s notes by 40 points. What that does and doesn’t show.">
+<meta property="og:url" content="https://aadityakumawat.me/notes/same-words-different-notes/">
+<meta property="og:image" content="https://aadityakumawat.me/assets/og/same-words-different-notes.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Same words, different notes | Aaditya Kumawat">
+<meta name="twitter:description" content="Changing only the speaker labels on a court transcript moved one speaker’s share of my pipeline’s notes by 40 points. What that does and doesn’t show.">
+<meta name="twitter:image" content="https://aadityakumawat.me/assets/og/same-words-different-notes.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="alternate" type="application/atom+xml" title="Notes by Aaditya Kumawat" href="/notes/feed.xml">
+<link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<link rel="stylesheet" href="/assets/css/site.css?v=5">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Same words, different notes","description":"Changing only the speaker labels on a court transcript moved one speaker’s share of my pipeline’s notes by 40 points. What that does and doesn’t show.","datePublished":"2026-10-05","author":{"@type":"Person","name":"Aaditya Kumawat","url":"https://aadityakumawat.me/"},"mainEntityOfPage":"https://aadityakumawat.me/notes/same-words-different-notes/"}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header wrap" id="top">
+  <a class="logo" href="/" aria-label="Aaditya Kumawat, home">ak<span class="logo-dot"></span></a>
+  <nav class="nav" aria-label="Main">
+    <a href="/#work">Work</a>
+    <a href="/#research">Research</a>
+    <a href="/notes/">Notes</a>
+    <a href="/#about">About</a>
+    <a href="/#contact">Contact</a>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch to dark mode"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.7a6.3 6.3 0 0 1 0 12.6z" fill="currentColor"/></svg></button>
+    <a class="btn btn-sm btn-dl header-cv" href="/assets/Aaditya_Kumawat_CV.pdf" download aria-label="Download CV (PDF)"><span class="btn-label">Download CV</span><span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9.5M4.2 7.8 8 11.6l3.8-3.8M3 14.2h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="cs-head">
+    <a class="back" href="/notes/"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8H3M7 4 3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> All notes</a>
+    <h1 class="art-title"><span style="view-transition-name: vt-same-words-different-notes">Same words, different notes</span></h1>
+    <p class="cs-summary">Changing only the speaker labels on a court transcript moved one speaker’s share of my pipeline’s notes by 40 points. What that does and doesn’t show.</p>
+  </div>
+  <div class="art">
+    <aside class="art-aside">
+      <dl>
+        <div><dt>Published</dt><dd><time datetime="2026-10-05">5 October 2026</time></dd></div>
+        <div><dt>Reading time</dt><dd>3 min</dd></div>
+        <div><dt>Project</dt><dd><a class="text-link" href="/work/legal-audio/">Legal audio to notes</a></dd></div>
+      </dl>
+    </aside>
+    <article class="art-body">
+
+<p class="lead">During my research internship at the Applied AI Laboratory, HEC Lausanne, I built a fully local pipeline that turns court audio into notes. In one mode a local language model reads a numbered transcript and only picks which sentences go into the notes; it cannot change a word. So every note is verbatim, and every accuracy metric I had said the pipeline was working. None of them asked whether the notes were fair to the people speaking.</p>
+
+<h2>The probe</h2>
+<p>Keep the transcript byte-for-byte identical, change only the speaker labels, run the selection again, and compare. Three conditions:</p>
+<div class="tbl"><table><thead><tr><th>Condition</th><th>What changes</th></tr></thead><tbody><tr><td>Control</td><td>Nothing. The identical transcript is selected again, to see how much the selection moves on its own.</td></tr><tr><td>Anonymised</td><td>Every label becomes SPEAKER_XX, so the model can no longer tell the speakers apart.</td></tr><tr><td>Permuted</td><td>Labels are shifted by one, so the same labels sit on different people.</td></tr></tbody></table></div>
+<p>For each condition I measured every speaker&rsquo;s share of the selected lines and how far it moved from the original run. A shift only counts as evidence if it is at least 5 points and at least twice whatever the control moved.</p>
+
+<h2>The first run was confounded</h2>
+<p>My first anonymised run used a plain &ldquo;SPEAKER&rdquo; label. It was shorter than the real labels, so more lines fit in each window the model reads, and the transcript was split at different points: windows of 155, 175, 187, 176 and 61 lines against the original 151, 178, 176, 173 and 84. That run changed two things at once, so its 10.7-point shift could not be blamed on the labels.</p>
+<p>The fix was a label of exactly the same width, SPEAKER_XX, and a rule: any condition whose windows don&rsquo;t match the original is reported but never counted.</p>
+
+<h2>The result</h2>
+<div class="tbl"><table><thead><tr><th>Condition</th><th class="r">Overlap with original selection</th><th class="r">Largest shift in one speaker&rsquo;s share</th><th class="r">Counts as evidence</th></tr></thead><tbody><tr><td>Control</td><td class="r">100%</td><td class="r">0 points</td><td class="r">This is the floor</td></tr><tr><td>Anonymised</td><td class="r">18%</td><td class="r"><strong>40.4 points</strong></td><td class="r"><strong>Yes</strong></td></tr><tr><td>Permuted</td><td class="r">41%</td><td class="r">3.6 points</td><td class="r">No</td></tr></tbody></table></div>
+<p>Removing who-said-what replaced most of the selection and moved one speaker&rsquo;s share of the notes by 40.4 points. The words were identical.</p>
+<p class="pull">Word error rate, diarization error, verbatim rate and the judge all score these two sets of notes the same. Only the probe saw the difference.</p>
+
+<h2>What it does and doesn&rsquo;t show</h2>
+<ul>
+<li><strong>It shows</strong> that what gets selected depends on the labels, not just the words. No accuracy metric in the pipeline checks for that.</li>
+<li><strong>It doesn&rsquo;t show</strong> that the model favours particular people. Swapping who is who moved shares by only 3.6 points, below the bar. The more likely reading is that the model uses the labels to follow the structure of the hearing, who is asking and who is answering, and selects differently when that structure disappears.</li>
+<li><strong>It is one case:</strong> a 62-minute Supreme Court argument with 10 speakers. That makes it a finding to chase, not a result to generalise.</li>
+</ul>
+
+<h2>Why this matters for diarization</h2>
+<p>If removing the labels can move a speaker&rsquo;s share of the notes by 40 points, then the labels a diarizer produces are not just a detail of the transcript. Diarization error on this audio was 7.9%, and overlapping speech, where two people talk at once, is one of the hardest cases for a diarizer. A turn given to the wrong speaker could change what ends up in the notes.</p>
+<p>Measuring how diarization errors, especially in overlapping speech, carry through into what a summary selects is the next thing I want to study.</p>
+
+    </article>
+  </div>
+  <a class="next" href="/notes/gpu-waiting-not-working/"><span class="next-label">Next note</span><span class="next-title"><span style="view-transition-name: vt-gpu-waiting-not-working">My GPU was waiting, not working</span></span></a>
+</main>
+<footer class="site-footer wrap">
+  <span>&copy; <span data-year>2026</span> Aaditya Kumawat</span>
+  <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
+  <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
+</footer>
+<script src="/assets/js/site.js?v=5" defer></script>
+</body>
+</html>

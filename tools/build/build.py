@@ -4,6 +4,7 @@ from common import *
 from visuals import SEXTANT_TERM_SHORT, NANOSERVE_BARS, NANOSERVE_SIM, COMPANYHUB_MOCK
 import pages
 import notes
+import cfchart
 
 OUT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -33,7 +34,7 @@ def row(slug, when, kind, stack, title, sub, text, fact_items, links, visual, vi
         <dt>Stack</dt><dd>{stack}</dd>
       </dl>
       <div class="row-body">
-        <h3 class="row-title" id="t-{slug}"><a href="/work/{slug}/">{title}</a><span class="row-sub">{sub}</span></h3>
+        <h3 class="row-title" id="t-{slug}"><a href="/work/{slug}/" style="view-transition-name: vt-{slug}">{title}</a><span class="row-sub">{sub}</span></h3>
         <p class="row-text">{text}</p>
         {facts(fact_items)}
         <div class="row-links">{link_html}</div>
@@ -167,7 +168,7 @@ index = head(
 
   <section class="section wrap" id="notes" aria-labelledby="notes-title">
     <div class="section-head">
-      <h2 class="section-title" id="notes-title">Notes<span class="count">2</span></h2>
+      <h2 class="section-title" id="notes-title">Notes<span class="count">""" + str(len(notes.NOTES)) + f"""</span></h2>
       <p class="section-lede">Short write-ups on what my projects measured, including the parts that didn&rsquo;t go to plan.</p>
     </div>
     """ + notes.notes_list_html() + f"""
@@ -177,8 +178,9 @@ index = head(
     <div class="section-head">
       <h2 class="section-title" id="rec-title">Recognition</h2>
     </div>
+    """ + cfchart.chart() + f"""
     <div class="list honors">
-      <div class="item"><p class="item-title"><strong>Candidate Master</strong> on Codeforces, peak rating 1938 as <a class="text-link" href="{CODEFORCES}">codeleon</a>, reached in 9 rated contests over six weeks</p><p class="item-side num">2026</p></div>
+      <div class="item"><p class="item-title"><strong>Candidate Master</strong> on Codeforces as <a class="text-link" href="{CODEFORCES}">codeleon</a>, reached in 8 rated contests from unrated; peak rating 1935</p><p class="item-side num">2026</p></div>
       <div class="item"><p class="item-title">Rank <strong>170</strong> in Codeforces Educational Round 193</p><p class="item-side num">2026</p></div>
       <div class="item"><p class="item-title">Letter of recommendation from the <strong>Applied AI Laboratory, HEC Lausanne</strong></p><p class="item-side num">2026</p></div>
       <div class="item"><p class="item-title">All India Rank in the <strong>top 3%</strong> of about 200,000 candidates who qualified JEE Advanced</p><p class="item-side num">2024</p></div>

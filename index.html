@@ -26,7 +26,7 @@
 <link rel="alternate" type="application/atom+xml" title="Notes by Aaditya Kumawat" href="/notes/feed.xml">
 <link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
-<link rel="stylesheet" href="/assets/css/site.css?v=4">
+<link rel="stylesheet" href="/assets/css/site.css?v=5">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Person", "name": "Aaditya Kumawat", "url": "https://aadityakumawat.me/", "email": "mailto:aaditya@aadityakumawat.me", "jobTitle": "B.Tech student, Production and Industrial Engineering", "affiliation": {"@type": "CollegeOrUniversity", "name": "Indian Institute of Technology Delhi"}, "alumniOf": {"@type": "CollegeOrUniversity", "name": "Indian Institute of Technology Delhi"}, "sameAs": ["https://github.com/AadityaK21", "https://www.linkedin.com/in/aaditya-kumawat-9588012b2/", "https://codeforces.com/profile/codeleon", "https://orcid.org/0009-0001-2877-2219"], "knowsAbout": ["Machine learning systems", "LLM inference", "Signal processing", "Storage engines", "C++", "Python"]}</script>
 </head>
 <body>
@@ -93,7 +93,7 @@
         <dt>Stack</dt><dd>C++20, React, TypeScript, CMake</dd>
       </dl>
       <div class="row-body">
-        <h3 class="row-title" id="t-sextant"><a href="/work/sextant/">Sextant</a><span class="row-sub">Ontology and lineage platform</span></h3>
+        <h3 class="row-title" id="t-sextant"><a href="/work/sextant/" style="view-transition-name: vt-sextant">Sextant</a><span class="row-sub">Ontology and lineage platform</span></h3>
         <p class="row-text">A mini-Foundry for maritime data. It pulls port and vessel records from three public sources, merges duplicates into real entities, and can trace every stored value back to the source row and transforms that produced it. Underneath is an LSM storage engine I wrote from scratch.</p>
         <dl class="facts"><div><dt>of 4,201 values replay from source</dt><dd>100%</dd></div><div><dt>batched writes per second</dt><dd>1.53M</dd></div><div><dt>F1 on entity resolution</dt><dd>0.991</dd></div></dl>
         <div class="row-links"><a class="btn btn-sm" href="/work/sextant/">Read the case study<span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a><a class="text-link" href="https://github.com/AadityaK21/sextant">Code on GitHub</a></div>
@@ -118,7 +118,7 @@ lineage round trip
         <dt>Stack</dt><dd>PyTorch, Triton, CUDA</dd>
       </dl>
       <div class="row-body">
-        <h3 class="row-title" id="t-nanoserve"><a href="/work/nanoserve/">nanoserve</a><span class="row-sub">LLM inference server</span></h3>
+        <h3 class="row-title" id="t-nanoserve"><a href="/work/nanoserve/" style="view-transition-name: vt-nanoserve">nanoserve</a><span class="row-sub">LLM inference server</span></h3>
         <p class="row-text">An LLM inference server built without vLLM or TGI: a paged KV cache, continuous batching with chunked prefill, a fused Triton attention kernel and INT4/INT8 weight quantization. vLLM only appears as an outside yardstick.</p>
         <dl class="facts"><div><dt>throughput over static batching</dt><dd>1.65&times;</dd></div><div><dt>lower p99 time to first token</dt><dd>12&times;</dd></div><div><dt>tests</dt><dd>92</dd></div></dl>
         <div class="row-links"><a class="btn btn-sm" href="/work/nanoserve/">Read the case study<span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a><a class="text-link" href="https://github.com/AadityaK21/nanoserve">Code on GitHub</a></div>
@@ -135,7 +135,7 @@ lineage round trip
         <dt>Stack</dt><dd>Python, NumPy, SciPy</dd>
       </dl>
       <div class="row-body">
-        <h3 class="row-title" id="t-st-bemd"><a href="/work/st-bemd/">ST-BEMD</a><span class="row-sub">Direction-adaptive 2-D EMD</span></h3>
+        <h3 class="row-title" id="t-st-bemd"><a href="/work/st-bemd/" style="view-transition-name: vt-st-bemd">ST-BEMD</a><span class="row-sub">Direction-adaptive 2-D EMD</span></h3>
         <p class="row-text">A method for splitting 2-D signals like fingerprints into their component layers. It bends along the ridges instead of treating every direction alike. I tested it against four baselines that I also wrote from scratch.</p>
         <dl class="facts"><div><dt>better than the baseline under heavy noise</dt><dd>3.3&deg;</dd></div><div><dt>baselines written from scratch</dt><dd>4</dd></div><div><dt>of the clean-data gain traced by ablation</dt><dd>78%</dd></div></dl>
         <div class="row-links"><a class="btn btn-sm" href="/work/st-bemd/">Read the case study<span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a><a class="text-link" href="https://github.com/AadityaK21/stbemd-signal-processing">Code on GitHub</a></div>
@@ -149,7 +149,7 @@ lineage round trip
         <dt>Stack</dt><dd>Next.js 15, TypeScript, PostgreSQL</dd>
       </dl>
       <div class="row-body">
-        <h3 class="row-title" id="t-company-hub"><a href="/work/company-hub/">Company Hub</a><span class="row-sub">Interview prep platform</span></h3>
+        <h3 class="row-title" id="t-company-hub"><a href="/work/company-hub/" style="view-transition-name: vt-company-hub">Company Hub</a><span class="row-sub">Interview prep platform</span></h3>
         <p class="row-text">A live site that ranks LeetCode questions by how often each company asks them, with progress tracking, spaced revision and an in-browser code editor. I run it in production and fixed the problems that only show up under real traffic.</p>
         <dl class="facts"><div><dt>questions indexed</dt><dd>3,400</dd></div><div><dt>companies</dt><dd>656</dd></div><div><dt>languages in the editor</dt><dd>9</dd></div></dl>
         <div class="row-links"><a class="btn btn-sm" href="/work/company-hub/">Read the case study<span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a><a class="text-link" href="https://companyhub.fun">Visit companyhub.fun</a><a class="text-link" href="https://github.com/AadityaK21/leetcode-company-hub">Code</a></div>
@@ -195,7 +195,7 @@ lineage round trip
         <dt>Stack</dt><dd>Applied AI Laboratory, HEC Lausanne</dd>
       </dl>
       <div class="row-body">
-        <h3 class="row-title" id="t-legal-audio"><a href="/work/legal-audio/">Legal audio to notes</a><span class="row-sub">Legal AI pipeline</span></h3>
+        <h3 class="row-title" id="t-legal-audio"><a href="/work/legal-audio/" style="view-transition-name: vt-legal-audio">Legal audio to notes</a><span class="row-sub">Legal AI pipeline</span></h3>
         <p class="row-text">A fully local pipeline that turns court audio into speaker-attributed notes. Every note links back to the moment in the recording it came from, and nothing leaves the machine. In one mode the language model can only pick sentence ids, so it has no way to invent text.</p>
         <dl class="facts"><div><dt>word error rate</dt><dd>6.9%</dd></div><div><dt>diarization error rate</dt><dd>7.9%</dd></div><div><dt>verbatim in extractive mode</dt><dd>100%</dd></div></dl>
         <div class="row-links"><a class="btn btn-sm" href="/work/legal-audio/">Read the case study<span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a></div>
@@ -214,17 +214,22 @@ lineage round trip
 
   <section class="section wrap" id="notes" aria-labelledby="notes-title">
     <div class="section-head">
-      <h2 class="section-title" id="notes-title">Notes<span class="count">2</span></h2>
+      <h2 class="section-title" id="notes-title">Notes<span class="count">3</span></h2>
       <p class="section-lede">Short write-ups on what my projects measured, including the parts that didn&rsquo;t go to plan.</p>
     </div>
     <div class="list">
       <article class="item">
-        <h3 class="item-title"><a href="/notes/gpu-waiting-not-working/">My GPU was waiting, not working</a></h3>
+        <h3 class="item-title"><a href="/notes/same-words-different-notes/" style="view-transition-name: vt-same-words-different-notes">Same words, different notes</a></h3>
+        <p class="item-text">Changing only the speaker labels on a court transcript moved one speaker’s share of my pipeline’s notes by 40 points. What that does and doesn’t show.<span class="by">From <a class="text-link" href="/work/legal-audio/">Legal audio to notes</a></span></p>
+        <p class="item-side"><span><time datetime="2026-10-05">5 October 2026</time></span><span>3 min read</span></p>
+      </article>
+      <article class="item">
+        <h3 class="item-title"><a href="/notes/gpu-waiting-not-working/" style="view-transition-name: vt-gpu-waiting-not-working">My GPU was waiting, not working</a></h3>
         <p class="item-text">Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.<span class="by">From <a class="text-link" href="/work/nanoserve/">nanoserve</a></span></p>
         <p class="item-side"><span><time datetime="2026-10-05">5 October 2026</time></span><span>4 min read</span></p>
       </article>
       <article class="item">
-        <h3 class="item-title"><a href="/notes/gaussian-blur-beat-my-method/">A Gaussian blur beat my method</a></h3>
+        <h3 class="item-title"><a href="/notes/gaussian-blur-beat-my-method/" style="view-transition-name: vt-gaussian-blur-beat-my-method">A Gaussian blur beat my method</a></h3>
         <p class="item-text">What happened when I tested the metric instead of the method, on my direction-adaptive EMD for fingerprints.<span class="by">From <a class="text-link" href="/work/st-bemd/">ST-BEMD</a></span></p>
         <p class="item-side"><span><time datetime="2026-10-05">5 October 2026</time></span><span>4 min read</span></p>
       </article>
@@ -235,8 +240,54 @@ lineage round trip
     <div class="section-head">
       <h2 class="section-title" id="rec-title">Recognition</h2>
     </div>
+    
+    <figure class="cf" aria-labelledby="cf-title">
+      <figcaption class="cf-cap"><span class="cf-title" id="cf-title">Codeforces rating</span><span class="cf-sub">From unrated to Candidate Master in 8 rated contests, June to August 2026. Hover or tap a point.</span></figcaption>
+      <div class="cf-frame">
+        <div class="cf-plot">
+          <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true" focusable="false"><line x1="0" x2="1000" y1="939.4" y2="939.4" class="cf-grid" vector-effect="non-scaling-stroke"/><line x1="0" x2="1000" y1="636.4" y2="636.4" class="cf-grid" vector-effect="non-scaling-stroke"/><line x1="0" x2="1000" y1="333.3" y2="333.3" class="cf-grid" vector-effect="non-scaling-stroke"/><line x1="0" x2="1000" y1="90.9" y2="90.9" class="cf-cm" vector-effect="non-scaling-stroke"/><path d="M71.5,914.5 L180.4,685.5 L289.6,483.6 L326.0,383.6 L362.7,266.7 L544.4,176.4 L744.0,122.4 L762.2,75.2 L944.0,69.7" class="cf-line" vector-effect="non-scaling-stroke"/></svg>
+          <span class="cf-y" style="top:93.94%">500</span><span class="cf-y" style="top:63.64%">1,000</span><span class="cf-y" style="top:33.33%">1,500</span>
+          <span class="cf-th" style="top:9.09%">Candidate Master, 1900</span>
+          <span class="cf-lab is-below" style="left:7.15%;top:91.45%">541</span><span class="cf-lab is-note" style="left:76.22%;top:7.52%">rank 170</span><span class="cf-lab is-end" style="left:94.40%;top:6.97%">1935</span>
+          <button type="button" class="cf-pt" style="left:7.15%;top:91.45%" data-tip="Codeforces Round 1107 (Div. 3)
+30 Jun 2026
+Rank 2,013
+Unrated → 541 (+541)" aria-label="Codeforces Round 1107 (Div. 3), 30 Jun 2026: rank 2013, rating 541"></button><button type="button" class="cf-pt" style="left:18.04%;top:68.55%" data-tip="Educational Codeforces Round 192
+6 Jul 2026
+Rank 2,289
+541 → 919 (+378)" aria-label="Educational Codeforces Round 192, 6 Jul 2026: rank 2289, rating 919"></button><button type="button" class="cf-pt" style="left:28.96%;top:48.36%" data-tip="Codeforces Round 1108 (Div. 2)
+12 Jul 2026
+Rank 1,042
+919 → 1252 (+333)" aria-label="Codeforces Round 1108 (Div. 2), 12 Jul 2026: rank 1042, rating 1252"></button><button type="button" class="cf-pt" style="left:32.60%;top:38.36%" data-tip="Codeforces Round 1109 (Div. 3)
+14 Jul 2026
+Rank 1,255
+1252 → 1417 (+165)" aria-label="Codeforces Round 1109 (Div. 3), 14 Jul 2026: rank 1255, rating 1417"></button><button type="button" class="cf-pt" style="left:36.27%;top:26.67%" data-tip="Codeforces Round 1110 (Div. 1 + Div. 2)
+16 Jul 2026
+Rank 854
+1417 → 1610 (+193)" aria-label="Codeforces Round 1110 (Div. 1 + Div. 2), 16 Jul 2026: rank 854, rating 1610"></button><button type="button" class="cf-pt" style="left:54.44%;top:17.64%" data-tip="Codeforces Round 1112 (Div. 2)
+26 Jul 2026
+Rank 244
+1610 → 1759 (+149)" aria-label="Codeforces Round 1112 (Div. 2), 26 Jul 2026: rank 244, rating 1759"></button><button type="button" class="cf-pt" style="left:74.40%;top:12.24%" data-tip="Codeforces Round 1115 (Div. 2)
+6 Aug 2026
+Rank 324
+1759 → 1848 (+89)" aria-label="Codeforces Round 1115 (Div. 2), 6 Aug 2026: rank 324, rating 1848"></button><button type="button" class="cf-pt is-cm" style="left:76.22%;top:7.52%" data-tip="Educational Codeforces Round 193
+7 Aug 2026
+Rank 170
+1848 → 1926 (+78)" aria-label="Educational Codeforces Round 193, 7 Aug 2026: rank 170, rating 1926"></button><button type="button" class="cf-pt is-cm" style="left:94.40%;top:6.97%" data-tip="Codeforces Round 1117 (Div. 2)
+17 Aug 2026
+Rank 446
+1926 → 1935 (+9)" aria-label="Codeforces Round 1117 (Div. 2), 17 Aug 2026: rank 446, rating 1935"></button>
+          <div class="cf-tip" role="status" hidden></div>
+        </div>
+        <div class="cf-x" aria-hidden="true"><span style="left:7.27%">1 Jul</span><span style="left:32.73%">15 Jul</span><span style="left:63.64%">1 Aug</span><span style="left:89.09%">15 Aug</span></div>
+      </div>
+      <details class="cf-table">
+        <summary>Show as a table</summary>
+        <div class="tbl"><table><thead><tr><th>Date</th><th>Contest</th><th class="r">Rank</th><th class="r">Rating</th><th class="r">Change</th></tr></thead><tbody><tr><td>30 Jun</td><td>Codeforces Round 1107 (Div. 3)</td><td class="r">2,013</td><td class="r">541</td><td class="r">+541</td></tr><tr><td>6 Jul</td><td>Educational Codeforces Round 192</td><td class="r">2,289</td><td class="r">919</td><td class="r">+378</td></tr><tr><td>12 Jul</td><td>Codeforces Round 1108 (Div. 2)</td><td class="r">1,042</td><td class="r">1252</td><td class="r">+333</td></tr><tr><td>14 Jul</td><td>Codeforces Round 1109 (Div. 3)</td><td class="r">1,255</td><td class="r">1417</td><td class="r">+165</td></tr><tr><td>16 Jul</td><td>Codeforces Round 1110 (Div. 1 + Div. 2)</td><td class="r">854</td><td class="r">1610</td><td class="r">+193</td></tr><tr><td>26 Jul</td><td>Codeforces Round 1112 (Div. 2)</td><td class="r">244</td><td class="r">1759</td><td class="r">+149</td></tr><tr><td>6 Aug</td><td>Codeforces Round 1115 (Div. 2)</td><td class="r">324</td><td class="r">1848</td><td class="r">+89</td></tr><tr><td>7 Aug</td><td>Educational Codeforces Round 193</td><td class="r">170</td><td class="r">1926</td><td class="r">+78</td></tr><tr><td>17 Aug</td><td>Codeforces Round 1117 (Div. 2)</td><td class="r">446</td><td class="r">1935</td><td class="r">+9</td></tr></tbody></table></div>
+      </details>
+    </figure>
     <div class="list honors">
-      <div class="item"><p class="item-title"><strong>Candidate Master</strong> on Codeforces, peak rating 1938 as <a class="text-link" href="https://codeforces.com/profile/codeleon">codeleon</a>, reached in 9 rated contests over six weeks</p><p class="item-side num">2026</p></div>
+      <div class="item"><p class="item-title"><strong>Candidate Master</strong> on Codeforces as <a class="text-link" href="https://codeforces.com/profile/codeleon">codeleon</a>, reached in 8 rated contests from unrated; peak rating 1935</p><p class="item-side num">2026</p></div>
       <div class="item"><p class="item-title">Rank <strong>170</strong> in Codeforces Educational Round 193</p><p class="item-side num">2026</p></div>
       <div class="item"><p class="item-title">Letter of recommendation from the <strong>Applied AI Laboratory, HEC Lausanne</strong></p><p class="item-side num">2026</p></div>
       <div class="item"><p class="item-title">All India Rank in the <strong>top 3%</strong> of about 200,000 candidates who qualified JEE Advanced</p><p class="item-side num">2024</p></div>
@@ -288,6 +339,6 @@ lineage round trip
   <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
   <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
 </footer>
-<script src="/assets/js/site.js?v=4" defer></script>
+<script src="/assets/js/site.js?v=5" defer></script>
 </body>
 </html>

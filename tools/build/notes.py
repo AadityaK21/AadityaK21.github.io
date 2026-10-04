@@ -4,6 +4,14 @@ from common import *
 
 NOTES = [
     {
+        "slug": "same-words-different-notes",
+        "title": "Same words, different notes",
+        "dek": "Changing only the speaker labels on a court transcript moved one speaker\u2019s share of my pipeline\u2019s notes by 40 points. What that does and doesn\u2019t show.",
+        "date": "5 October 2026",
+        "iso": "2026-10-05",
+        "project": ("Legal audio to notes", "/work/legal-audio/"),
+    },
+    {
         "slug": "gpu-waiting-not-working",
         "title": "My GPU was waiting, not working",
         "dek": "Why LLM decode on my RTX 4060 is limited by kernel launches, not memory bandwidth, and what I changed once I knew.",
@@ -162,7 +170,45 @@ BLUR_BODY = f"""
 """
 
 
-BODIES = {"gpu-waiting-not-working": GPU_BODY, "gaussian-blur-beat-my-method": BLUR_BODY}
+SAME_BODY = f"""
+<p class="lead">During my research internship at the Applied AI Laboratory, HEC Lausanne, I built a fully local pipeline that turns court audio into notes. In one mode a local language model reads a numbered transcript and only picks which sentences go into the notes; it cannot change a word. So every note is verbatim, and every accuracy metric I had said the pipeline was working. None of them asked whether the notes were fair to the people speaking.</p>
+
+<h2>The probe</h2>
+<p>Keep the transcript byte-for-byte identical, change only the speaker labels, run the selection again, and compare. Three conditions:</p>
+{table(["Condition", "What changes"], [
+    ["Control", "Nothing. The identical transcript is selected again, to see how much the selection moves on its own."],
+    ["Anonymised", "Every label becomes SPEAKER_XX, so the model can no longer tell the speakers apart."],
+    ["Permuted", "Labels are shifted by one, so the same labels sit on different people."],
+], num_from=99)}
+<p>For each condition I measured every speaker&rsquo;s share of the selected lines and how far it moved from the original run. A shift only counts as evidence if it is at least 5 points and at least twice whatever the control moved.</p>
+
+<h2>The first run was confounded</h2>
+<p>My first anonymised run used a plain &ldquo;SPEAKER&rdquo; label. It was shorter than the real labels, so more lines fit in each window the model reads, and the transcript was split at different points: windows of 155, 175, 187, 176 and 61 lines against the original 151, 178, 176, 173 and 84. That run changed two things at once, so its 10.7-point shift could not be blamed on the labels.</p>
+<p>The fix was a label of exactly the same width, SPEAKER_XX, and a rule: any condition whose windows don&rsquo;t match the original is reported but never counted.</p>
+
+<h2>The result</h2>
+{table(["Condition", "Overlap with original selection", "Largest shift in one speaker&rsquo;s share", "Counts as evidence"], [
+    ["Control", "100%", "0 points", "This is the floor"],
+    ["Anonymised", "18%", "<strong>40.4 points</strong>", "<strong>Yes</strong>"],
+    ["Permuted", "41%", "3.6 points", "No"],
+])}
+<p>Removing who-said-what replaced most of the selection and moved one speaker&rsquo;s share of the notes by 40.4 points. The words were identical.</p>
+<p class="pull">Word error rate, diarization error, verbatim rate and the judge all score these two sets of notes the same. Only the probe saw the difference.</p>
+
+<h2>What it does and doesn&rsquo;t show</h2>
+<ul>
+<li><strong>It shows</strong> that what gets selected depends on the labels, not just the words. No accuracy metric in the pipeline checks for that.</li>
+<li><strong>It doesn&rsquo;t show</strong> that the model favours particular people. Swapping who is who moved shares by only 3.6 points, below the bar. The more likely reading is that the model uses the labels to follow the structure of the hearing, who is asking and who is answering, and selects differently when that structure disappears.</li>
+<li><strong>It is one case:</strong> a 62-minute Supreme Court argument with 10 speakers. That makes it a finding to chase, not a result to generalise.</li>
+</ul>
+
+<h2>Why this matters for diarization</h2>
+<p>If removing the labels can move a speaker&rsquo;s share of the notes by 40 points, then the labels a diarizer produces are not just a detail of the transcript. Diarization error on this audio was 7.9%, and overlapping speech, where two people talk at once, is one of the hardest cases for a diarizer. A turn given to the wrong speaker could change what ends up in the notes.</p>
+<p>Measuring how diarization errors, especially in overlapping speech, carry through into what a summary selects is the next thing I want to study.</p>
+"""
+
+
+BODIES = {"same-words-different-notes": SAME_BODY, "gpu-waiting-not-working": GPU_BODY, "gaussian-blur-beat-my-method": BLUR_BODY}
 
 
 def reading_time(html):
@@ -182,7 +228,7 @@ def note_page(n, i):
 <main id="main" class="wrap">
   <div class="cs-head">
     <a class="back" href="/notes/">{BACK} All notes</a>
-    <h1 class="art-title">{n["title"]}</h1>
+    <h1 class="art-title"><span style="view-transition-name: vt-{n["slug"]}">{n["title"]}</span></h1>
     <p class="cs-summary">{n["dek"]}</p>
   </div>
   <div class="art">
@@ -197,7 +243,7 @@ def note_page(n, i):
 {body}
     </article>
   </div>
-  <a class="next" href="/notes/{other["slug"]}/"><span class="next-label">Next note</span><span class="next-title">{other["title"]}</span></a>
+  <a class="next" href="/notes/{other["slug"]}/"><span class="next-label">Next note</span><span class="next-title"><span style="view-transition-name: vt-{other["slug"]}">{other["title"]}</span></span></a>
 </main>
 """ + footer()
 
@@ -207,7 +253,7 @@ def notes_list_html(level=3):
     for n in NOTES:
         out += f"""
       <article class="item">
-        <h{level} class="item-title"><a href="/notes/{n["slug"]}/">{n["title"]}</a></h{level}>
+        <h{level} class="item-title"><a href="/notes/{n["slug"]}/" style="view-transition-name: vt-{n["slug"]}">{n["title"]}</a></h{level}>
         <p class="item-text">{n["dek"]}<span class="by">From <a class="text-link" href="{n["project"][1]}">{n["project"][0]}</a></span></p>
         <p class="item-side"><span><time datetime="{n["iso"]}">{n["date"]}</time></span><span>{reading_time(BODIES[n["slug"]])} min read</span></p>
       </article>"""
