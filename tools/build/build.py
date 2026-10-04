@@ -4,7 +4,6 @@ from common import *
 from visuals import SEXTANT_TERM_SHORT, NANOSERVE_BARS, NANOSERVE_SIM, COMPANYHUB_MOCK
 import pages
 import notes
-import cfchart
 
 OUT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -178,7 +177,6 @@ index = head(
     <div class="section-head">
       <h2 class="section-title" id="rec-title">Recognition</h2>
     </div>
-    """ + cfchart.chart() + f"""
     <div class="list honors">
       <div class="item"><p class="item-title"><strong>Candidate Master</strong> on Codeforces as <a class="text-link" href="{CODEFORCES}">codeleon</a>, reached in 8 rated contests from unrated; peak rating 1935</p><p class="item-side num">2026</p></div>
       <div class="item"><p class="item-title">Rank <strong>170</strong> in Codeforces Educational Round 193</p><p class="item-side num">2026</p></div>

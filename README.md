@@ -12,7 +12,7 @@ Plain HTML, CSS and JavaScript. No build step and no framework: edit a file, com
 | `work/<project>/index.html` | One case study per project (sextant, nanoserve, legal-audio, st-bemd, company-hub) |
 | `404.html` | Not-found page |
 | `assets/css/site.css` | All styles. Colours, fonts and spacing are tokens at the top of the file |
-| `assets/js/site.js` | Theme toggle, local clock, hero name sizing, copy-email button, the fingerprint canvas, the batching animation, Codeforces chart tooltips |
+| `assets/js/site.js` | Theme toggle, local clock, hero name sizing, copy-email button, the fingerprint canvas, the batching animation |
 | `assets/img/` | Project figures (WebP) |
 | `assets/fonts/` | Archivo variable font, self-hosted |
 | `assets/Aaditya_Kumawat_CV.pdf` | The CV behind every "Download CV" button. Replace the file to update it |
@@ -33,8 +33,6 @@ python3 tools/build/build.py
 `tools/build/og.py` regenerates the preview images; it needs Playwright and a local server on port 8765 (`python3 -m http.server 8765`). Small text fixes can also be made directly in the HTML, but they will be overwritten the next time the generator runs.
 
 Visitor counts: not set up yet. To add GoatCounter, create the account `aadityakumawat` at goatcounter.com, then add its script tag to `footer()` in `tools/build/common.py` and rebuild.
-
-The Codeforces chart data lives in `tools/build/cfchart.py` (`ROWS`). After new rated contests, add a row per contest (contest id, name, rank, old rating, new rating, Unix time) and rebuild.
 
 ## Common edits
 
