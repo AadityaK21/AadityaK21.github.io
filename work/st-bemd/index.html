@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ST-BEMD: direction-adaptive 2-D EMD | Aaditya Kumawat</title>
+<meta name="description" content="ST-BEMD is a structure-tensor-guided empirical mode decomposition for 2-D signals. On 100 real fingerprints it cuts orientation error by 35.7% against isotropic BEMD.">
+<link rel="canonical" href="https://aadityakumawat.me/work/st-bemd/">
+<meta name="author" content="Aaditya Kumawat">
+<meta name="theme-color" content="#f1f1ef">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Aaditya Kumawat">
+<meta property="og:title" content="ST-BEMD: direction-adaptive 2-D EMD | Aaditya Kumawat">
+<meta property="og:description" content="ST-BEMD is a structure-tensor-guided empirical mode decomposition for 2-D signals. On 100 real fingerprints it cuts orientation error by 35.7% against isotropic BEMD.">
+<meta property="og:url" content="https://aadityakumawat.me/work/st-bemd/">
+<meta property="og:image" content="https://aadityakumawat.me/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ST-BEMD: direction-adaptive 2-D EMD | Aaditya Kumawat">
+<meta name="twitter:description" content="ST-BEMD is a structure-tensor-guided empirical mode decomposition for 2-D signals. On 100 real fingerprints it cuts orientation error by 35.7% against isotropic BEMD.">
+<meta name="twitter:image" content="https://aadityakumawat.me/og.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css?v=1">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header wrap" id="top">
+  <a class="logo" href="/" aria-label="Aaditya Kumawat, home">ak<span class="logo-dot"></span></a>
+  <nav class="nav" aria-label="Main">
+    <a href="/#work">Work</a>
+    <a href="/#research">Research</a>
+    <a href="/#about">About</a>
+    <a href="/#contact">Contact</a>
+  </nav>
+  <a class="btn btn-sm btn-dl header-cv" href="/assets/Aaditya_Kumawat_CV.pdf" download aria-label="Download CV (PDF)"><span class="btn-label">Download CV</span><span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9.5M4.2 7.8 8 11.6l3.8-3.8M3 14.2h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+</header>
+
+<main id="main" class="wrap">
+  <div class="cs-head">
+    <a class="back" href="/#work"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8H3M7 4 3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> All work</a>
+    <h1 class="cs-title">ST-BEMD</h1>
+    <p class="cs-summary">A way to split 2-D signals such as fingerprints into their component layers, by bending the method along the ridges instead of treating every direction the same.</p>
+    <dl class="cs-meta"><div><dt>When</dt><dd>May&ndash;Jul 2026</dd></div><div><dt>What</dt><dd>Self-led project</dd></div><div><dt>Stack</dt><dd>Python, NumPy, SciPy</dd></div><div><dt>Links</dt><dd><a href="https://github.com/AadityaK21/stbemd-signal-processing">Code on GitHub</a></dd></div></dl>
+  </div>
+  <div class="cs-hero-visual is-figure"><img src="/assets/img/stbemd-orientation.webp" width="1430" height="468" alt="A real fingerprint from SOCOFing, its ridge orientation map and its structure-tensor coherence map."></div>
+  <section class="cs-section"><h2>Why it exists</h2><div class="cs-body">
+<p>Empirical mode decomposition splits a signal into layers, from the finest detail to the slowest trend. The 2-D version builds its upper and lower envelopes by interpolating between local maxima and minima the same way in every direction.</p>
+<p>On a signal with strong direction, like a fingerprint, that is wrong. The envelope averages peaks from neighbouring ridges, so orientation bleeds across them.</p>
+</div></section><section class="cs-section"><h2>What I built</h2><div class="cs-body">
+<ol>
+<li>Compute the structure tensor, which gives the local orientation and how strongly the image is oriented there (coherence).</li>
+<li>At each pixel, build an elliptical kernel stretched along the ridge. The stretch grows with coherence.</li>
+<li>Take the envelope as a kernel-weighted average of nearby extrema.</li>
+</ol>
+<p>Where coherence is zero the kernel becomes a circle, so the method falls back to ordinary 2-D EMD exactly where orientation is undefined.</p>
+<p>The original formulation, taken literally, stretches the kernel across the ridge instead of along it, which makes things worse. Getting that geometry right is the difference between 39.3&deg; and 8.3&deg; of orientation error on a real print.</p>
+<p>I wrote all four baselines from scratch: BEMD with a global RBF, Pseudo-BEMD, Serial-EMD and DEMD.</p>
+</div></section><section class="cs-section"><h2>Results</h2><div class="cs-body"><dl class="cs-facts"><div><dt>lower orientation error on 100 SOCOFing prints (12.87&deg; to 8.27&deg;)</dt><dd>35.7%</dd></div><div><dt>of 30 paired prints improved, Wilcoxon p = 1.9 &times; 10<sup>&minus;9</sup></dt><dd>100%</dd></div><div><dt>lower mean error on synthetic signals (3.08&deg; to 1.83&deg;)</dt><dd>40.6%</dd></div><div><dt>of the gain comes from the local envelope, not the anisotropy</dt><dd>78%</dd></div></dl><figure class="cs-figure"><img src="/assets/img/stbemd-fingerprints.webp" width="1420" height="666" alt="Left: orientation error for 30 prints, each with a blue isotropic point and an orange ST-BEMD point; every orange point is to the left. Right: error by ridge curvature, where both methods get worse but ST-BEMD stays lower." loading="lazy" decoding="async"><figcaption>Every one of 30 paired prints improves. Both methods get worse as ridges curve, and the gap holds across the range.</figcaption></figure>
+<p>The local envelope is also faster, because it sums over a small window instead of solving a dense system over all extrema. How much faster depends heavily on the machine and the signal, so I don&rsquo;t quote one multiplier.</p>
+</div></section><section class="cs-section"><h2>What the numbers don&rsquo;t say</h2><div class="cs-body">
+<p class="note">The method changes two things at once, so I ran an ablation to separate them. About 78% of the gain comes from switching to a local averaged envelope, which is an existing idea, not from the anisotropy the method is named after. The anisotropy still helps on its own (better on 70% of prints, p = 0.001), but the effect is small, and it shrinks on highly curved ridges.</p>
+</div></section>
+  <a class="next" href="/work/company-hub/"><span class="next-label">Next project</span><span class="next-title">Company Hub</span></a>
+</main>
+<footer class="site-footer wrap">
+  <span>&copy; <span data-year>2026</span> Aaditya Kumawat</span>
+  <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
+  <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
+</footer>
+<script src="/assets/js/site.js?v=1" defer></script>
+</body>
+</html>

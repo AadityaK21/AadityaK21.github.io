@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>nanoserve: LLM inference server from scratch | Aaditya Kumawat</title>
+<meta name="description" content="nanoserve is an LLM inference server written from scratch: paged KV cache, continuous batching, a fused Triton attention kernel and INT4/INT8 quantization. 1.65x throughput and 12x lower p99 TTFT over static batching.">
+<link rel="canonical" href="https://aadityakumawat.me/work/nanoserve/">
+<meta name="author" content="Aaditya Kumawat">
+<meta name="theme-color" content="#f1f1ef">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Aaditya Kumawat">
+<meta property="og:title" content="nanoserve: LLM inference server from scratch | Aaditya Kumawat">
+<meta property="og:description" content="nanoserve is an LLM inference server written from scratch: paged KV cache, continuous batching, a fused Triton attention kernel and INT4/INT8 quantization. 1.65x throughput and 12x lower p99 TTFT over static batching.">
+<meta property="og:url" content="https://aadityakumawat.me/work/nanoserve/">
+<meta property="og:image" content="https://aadityakumawat.me/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="nanoserve: LLM inference server from scratch | Aaditya Kumawat">
+<meta name="twitter:description" content="nanoserve is an LLM inference server written from scratch: paged KV cache, continuous batching, a fused Triton attention kernel and INT4/INT8 quantization. 1.65x throughput and 12x lower p99 TTFT over static batching.">
+<meta name="twitter:image" content="https://aadityakumawat.me/og.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css?v=1">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header wrap" id="top">
+  <a class="logo" href="/" aria-label="Aaditya Kumawat, home">ak<span class="logo-dot"></span></a>
+  <nav class="nav" aria-label="Main">
+    <a href="/#work">Work</a>
+    <a href="/#research">Research</a>
+    <a href="/#about">About</a>
+    <a href="/#contact">Contact</a>
+  </nav>
+  <a class="btn btn-sm btn-dl header-cv" href="/assets/Aaditya_Kumawat_CV.pdf" download aria-label="Download CV (PDF)"><span class="btn-label">Download CV</span><span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9.5M4.2 7.8 8 11.6l3.8-3.8M3 14.2h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+</header>
+
+<main id="main" class="wrap">
+  <div class="cs-head">
+    <a class="back" href="/#work"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8H3M7 4 3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> All work</a>
+    <h1 class="cs-title">nanoserve</h1>
+    <p class="cs-summary">An LLM inference server written from scratch, with no vLLM or TGI underneath. Built to find out where serving time actually goes.</p>
+    <dl class="cs-meta"><div><dt>When</dt><dd>Jun&ndash;Jul 2026</dd></div><div><dt>What</dt><dd>Self-led project</dd></div><div><dt>Stack</dt><dd>PyTorch, Triton, CUDA</dd></div><div><dt>Links</dt><dd><a href="https://github.com/AadityaK21/nanoserve">Code on GitHub</a></dd></div></dl>
+  </div>
+  <div class="cs-hero-visual "><div class="bars" role="img" aria-label="Output throughput: static batching 61.0 tokens per second, nanoserve 100.4. p99 time to first token: static batching 60.8 seconds, nanoserve 5.2 seconds.">
+  <div>
+    <h4>Output throughput <span>tokens/s, higher is better</span></h4>
+    <div class="bar"><span>Static batching</span><span class="bar-track" style="--w:50.6%"><span class="bar-fill"></span><span class="bar-val">61.0</span></span></div>
+    <div class="bar"><span>nanoserve</span><span class="bar-track" style="--w:83.3%"><span class="bar-fill is-ours"></span><span class="bar-val">100.4</span></span></div>
+  </div>
+  <div>
+    <h4>p99 time to first token <span>seconds, lower is better</span></h4>
+    <div class="bar"><span>Static batching</span><span class="bar-track" style="--w:83.3%"><span class="bar-fill"></span><span class="bar-val">60.8 s</span></span></div>
+    <div class="bar"><span>nanoserve</span><span class="bar-track" style="--w:7.1%"><span class="bar-fill is-ours"></span><span class="bar-val">5.2 s</span></span></div>
+  </div>
+  <p class="bars-note">RTX 4060 Laptop (8 GB), Qwen2.5-0.5B-Instruct in fp16, 32 concurrent requests with lognormal lengths.</p>
+</div></div>
+  <section class="cs-section"><h2>Why it exists</h2><div class="cs-body">
+<p>One request through a small model is fast. Serving is where the systems work is: hundreds of requests arrive with very different prompt and output lengths, GPU memory is finite, and you are judged on the slowest 1%, not the average.</p>
+<p>Three things dominate. Memory is the constraint, not compute. The batch must never go stale, because a static batch of 32 spends most of its life as a batch of one while it waits for the longest sequence. And smaller weights buy more room for concurrent requests.</p>
+</div></section><section class="cs-section"><h2>What I built</h2><div class="cs-body">
+<ul>
+<li><strong>Paged KV cache.</strong> A block allocator and per-sequence block tables, so wasted memory is bounded to less than one block per sequence.</li>
+<li><strong>Continuous batching.</strong> A scheduler that re-decides the batch every step, with a token budget, chunked prefill and preemption by recompute.</li>
+<li><strong>My own forward pass</strong> for Qwen2 against the paged cache. <code>transformers</code> supplies only the tokenizer and the raw weights.</li>
+<li><strong>A fused Triton kernel</strong> for paged-attention decode, using online softmax over the block table.</li>
+<li><strong>Weight-only quantization.</strong> INT8 per channel and group-wise INT4. INT4 hands about 700 MiB back to the KV cache.</li>
+<li><strong>A benchmark harness</strong> with realistic lognormal traffic. vLLM runs the identical workload in a separate environment as an outside yardstick.</li>
+</ul>
+<p>The scheduler and block manager import no torch, so the bookkeeping bugs that hurt most in a serving engine are caught in fast CPU unit tests. The project has 92 tests.</p>
+</div></section><section class="cs-section"><h2>Results</h2><div class="cs-body"><dl class="cs-facts"><div><dt>output throughput over the best static batching (61.0 to 100.4 tokens/s)</dt><dd>1.65&times;</dd></div><div><dt>lower p99 time to first token (60.8 s to 5.2 s)</dt><dd>12&times;</dd></div><div><dt>speed-up of the Triton kernel over gather + SDPA, depending on batch and context</dt><dd>2.1&ndash;12.5&times;</dd></div><div><dt>of decode time is launch overhead on this GPU, measured with a roofline probe</dt><dd>~80%</dd></div></dl><figure class="cs-figure"><img src="/assets/img/nanoserve-throughput.webp" width="1540" height="588" alt="Two charts of output tokens per second against batch size. Static batching rises with batch size but stays well below the continuous batching line in both the skewed and uniform workloads." loading="lazy" decoding="async"><figcaption>Continuous batching against static batching at batch sizes 1 to 16. The gap is widest on skewed lengths, which is what real traffic looks like.</figcaption></figure><figure class="cs-figure"><img src="/assets/img/nanoserve-kernel.webp" width="1540" height="588" alt="Left: attention time against context length for torch and Triton backends at batch 1, 8 and 32. Right: Triton speed-up against context length, falling from about 12 times at short context to about 2 to 4 times at 4096 tokens." loading="lazy" decoding="async"><figcaption>The kernel&rsquo;s speed-up shrinks with context at batch 1. That contradicted my prediction, and the raw timings explain why: at small batch the torch path is bound by kernel launches, not by memory traffic.</figcaption></figure>
+<p>p99 end-to-end latency fell from 110.8 s to 65.4 s. The finding that decode is mostly launch-overhead bound, not memory-bandwidth bound, inverts the usual advice and drove the optimisations that followed.</p>
+</div></section><section class="cs-section"><h2>What the numbers don&rsquo;t say</h2><div class="cs-body">
+<p class="note">Everything is measured on one laptop GPU (RTX 4060, 8 GB) with one small model (Qwen2.5-0.5B-Instruct, fp16). The first four attempts at one measurement gave wrong but plausible numbers, from GPU clock ramp-up to double-counted kernels. The report keeps those bugs and their fixes on record.</p>
+</div></section>
+  <a class="next" href="/work/legal-audio/"><span class="next-label">Next project</span><span class="next-title">Legal audio to notes</span></a>
+</main>
+<footer class="site-footer wrap">
+  <span>&copy; <span data-year>2026</span> Aaditya Kumawat</span>
+  <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
+  <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
+</footer>
+<script src="/assets/js/site.js?v=1" defer></script>
+</body>
+</html>

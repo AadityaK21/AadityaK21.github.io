@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Legal audio to notes: research at HEC Lausanne | Aaditya Kumawat</title>
+<meta name="description" content="A fully local pipeline that turns legal audio into speaker-attributed, citation-backed notes, built during a research internship at the Applied AI Laboratory, HEC Lausanne. 6.9% WER and 7.9% DER on Supreme Court audio.">
+<link rel="canonical" href="https://aadityakumawat.me/work/legal-audio/">
+<meta name="author" content="Aaditya Kumawat">
+<meta name="theme-color" content="#f1f1ef">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Aaditya Kumawat">
+<meta property="og:title" content="Legal audio to notes: research at HEC Lausanne | Aaditya Kumawat">
+<meta property="og:description" content="A fully local pipeline that turns legal audio into speaker-attributed, citation-backed notes, built during a research internship at the Applied AI Laboratory, HEC Lausanne. 6.9% WER and 7.9% DER on Supreme Court audio.">
+<meta property="og:url" content="https://aadityakumawat.me/work/legal-audio/">
+<meta property="og:image" content="https://aadityakumawat.me/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Legal audio to notes: research at HEC Lausanne | Aaditya Kumawat">
+<meta name="twitter:description" content="A fully local pipeline that turns legal audio into speaker-attributed, citation-backed notes, built during a research internship at the Applied AI Laboratory, HEC Lausanne. 6.9% WER and 7.9% DER on Supreme Court audio.">
+<meta name="twitter:image" content="https://aadityakumawat.me/og.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css?v=1">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header wrap" id="top">
+  <a class="logo" href="/" aria-label="Aaditya Kumawat, home">ak<span class="logo-dot"></span></a>
+  <nav class="nav" aria-label="Main">
+    <a href="/#work">Work</a>
+    <a href="/#research">Research</a>
+    <a href="/#about">About</a>
+    <a href="/#contact">Contact</a>
+  </nav>
+  <a class="btn btn-sm btn-dl header-cv" href="/assets/Aaditya_Kumawat_CV.pdf" download aria-label="Download CV (PDF)"><span class="btn-label">Download CV</span><span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9.5M4.2 7.8 8 11.6l3.8-3.8M3 14.2h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+</header>
+
+<main id="main" class="wrap">
+  <div class="cs-head">
+    <a class="back" href="/#work"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8H3M7 4 3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> All work</a>
+    <h1 class="cs-title">Legal audio</h1>
+    <p class="cs-summary">A fully local pipeline that turns court audio into speaker-attributed notes, where every line links back to the moment it was said. Nothing leaves the machine.</p>
+    <dl class="cs-meta"><div><dt>When</dt><dd>May&ndash;Jul 2026</dd></div><div><dt>Role</dt><dd>Research intern (remote)</dd></div><div><dt>Where</dt><dd>Applied AI Laboratory, HEC Lausanne</dd></div><div><dt>Stack</dt><dd>Python, Whisper, pyannote, local LLMs</dd></div></dl>
+  </div>
+  <div class="cs-hero-visual "><img src="/assets/img/legal-audio-app.webp" width="2000" height="1205" alt="The app in demo mode: note modes on the left, verbatim notes with speaker and timestamp citations in the middle, and the transcript on the right with the cited line highlighted."></div>
+  <section class="cs-section"><h2>Why it exists</h2><div class="cs-body">
+<p>Recordings of legal proceedings are often privileged, so sending them to a cloud API is not an option. And a note about what a court said is only useful if it is easy to check against the record.</p>
+<p>Most local meeting-notes tools feed a Whisper transcript to a language model and inherit every hallucination the model makes. For a document someone may rely on as an account of a hearing, that is the whole problem.</p>
+</div></section><section class="cs-section"><h2>What I built</h2><div class="cs-body">
+<ul>
+<li><strong>A local pipeline.</strong> Whisper large-v3-turbo for speech recognition, pyannote for speaker diarization, and a 4-bit quantized language model, all on a consumer 8 GB GPU.</li>
+<li><strong>Notes that cannot be made up.</strong> In model-selected extractive mode the LLM reads a numbered transcript and may only return integer sentence ids, enforced by a grammar constraint at decode time. The note text is then copied from the transcript by id, so it is byte-for-byte the record.</li>
+<li><strong>Confidentiality you can verify.</strong> A run marked privileged refuses any non-loopback endpoint before inference starts, and every run writes a manifest of hashes and endpoints that can be re-checked later.</li>
+<li><strong>A one-click check.</strong> In the app, every note is a button. Click it and the transcript scrolls to the source sentence and the audio seeks to that moment.</li>
+</ul>
+</div></section><section class="cs-section"><h2>Results</h2><div class="cs-body"><dl class="cs-facts"><div><dt>word error rate on 62 minutes of gold Supreme Court audio (Oyez)</dt><dd>6.9%</dd></div><div><dt>diarization error rate on the same audio</dt><dd>7.9%</dd></div><div><dt>verbatim rate in the extractive mode, verified</dt><dd>100%</dd></div><div><dt>how much more often legally important words are misheard than average words</dt><dd>3.0&times;</dd></div></dl>
+<p>The evaluation harness covers WER, DER, a checklist-style LLM judge in the spirit of CheckEval, and planted prompt-injection tests against that judge.</p>
+<p>I also built a speaker-label bias probe. It re-runs note selection on transcripts whose words are identical but whose speaker labels are anonymised or shuffled, and compares the result against a resampling noise floor. Relabelling alone shifted one speaker&rsquo;s share of the notes by 40.4 points, a failure that WER, DER and verbatim rate cannot see.</p>
+</div></section><section class="cs-section"><h2>What the numbers don&rsquo;t say</h2><div class="cs-body">
+<p class="note">Supreme Court oral argument is a floor, not a typical case: the recordings are unusually clean and the speakers unusually clear. Depositions and trial-court audio will be harder. The code is private.</p>
+</div></section>
+  <a class="next" href="/work/st-bemd/"><span class="next-label">Next project</span><span class="next-title">ST-BEMD</span></a>
+</main>
+<footer class="site-footer wrap">
+  <span>&copy; <span data-year>2026</span> Aaditya Kumawat</span>
+  <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
+  <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
+</footer>
+<script src="/assets/js/site.js?v=1" defer></script>
+</body>
+</html>

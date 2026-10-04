@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sextant: ontology and lineage platform | Aaditya Kumawat</title>
+<meta name="description" content="Sextant is a C++20 mini-Foundry: ontology, entity resolution and cell-level lineage over an LSM storage engine written from scratch. Every one of 4,201 values replays from its source row.">
+<link rel="canonical" href="https://aadityakumawat.me/work/sextant/">
+<meta name="author" content="Aaditya Kumawat">
+<meta name="theme-color" content="#f1f1ef">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Aaditya Kumawat">
+<meta property="og:title" content="Sextant: ontology and lineage platform | Aaditya Kumawat">
+<meta property="og:description" content="Sextant is a C++20 mini-Foundry: ontology, entity resolution and cell-level lineage over an LSM storage engine written from scratch. Every one of 4,201 values replays from its source row.">
+<meta property="og:url" content="https://aadityakumawat.me/work/sextant/">
+<meta property="og:image" content="https://aadityakumawat.me/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sextant: ontology and lineage platform | Aaditya Kumawat">
+<meta name="twitter:description" content="Sextant is a C++20 mini-Foundry: ontology, entity resolution and cell-level lineage over an LSM storage engine written from scratch. Every one of 4,201 values replays from its source row.">
+<meta name="twitter:image" content="https://aadityakumawat.me/og.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css?v=1">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header wrap" id="top">
+  <a class="logo" href="/" aria-label="Aaditya Kumawat, home">ak<span class="logo-dot"></span></a>
+  <nav class="nav" aria-label="Main">
+    <a href="/#work">Work</a>
+    <a href="/#research">Research</a>
+    <a href="/#about">About</a>
+    <a href="/#contact">Contact</a>
+  </nav>
+  <a class="btn btn-sm btn-dl header-cv" href="/assets/Aaditya_Kumawat_CV.pdf" download aria-label="Download CV (PDF)"><span class="btn-label">Download CV</span><span class="btn-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9.5M4.2 7.8 8 11.6l3.8-3.8M3 14.2h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+</header>
+
+<main id="main" class="wrap">
+  <div class="cs-head">
+    <a class="back" href="/#work"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8H3M7 4 3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> All work</a>
+    <h1 class="cs-title">Sextant</h1>
+    <p class="cs-summary">A mini-Foundry for maritime data. It maps messy records onto an ontology, merges duplicates into real entities, and can prove where every single value came from.</p>
+    <dl class="cs-meta"><div><dt>When</dt><dd>Jun&ndash;Aug 2026</dd></div><div><dt>What</dt><dd>Self-led project</dd></div><div><dt>Stack</dt><dd>C++20, React, TypeScript, CMake</dd></div><div><dt>Links</dt><dd><a href="https://github.com/AadityaK21/sextant">Code on GitHub</a></dd></div></dl>
+  </div>
+  <div class="cs-hero-visual "><pre class="term" aria-label="Terminal output from a Sextant run"><span class="c"># cluster, fuse, write entities with provenance</span>
+<span class="p">$</span> sextant resolve
+  1451 source records, 470 candidate pairs
+  1187 entities written, 4201 properties,
+  4201 provenance records
+  dedup ratio 0.1819  (1451 records -&gt; 1187 entities)
+
+<span class="c"># the lineage round trip</span>
+<span class="p">$</span> sextant explain
+lineage round trip
+  1187 entities, 4201 properties
+  <span class="ok">4201 verified, 0 failed  -&gt;  100.00%</span>
+
+<span class="c"># a quarter of arrivals at Rotterdam</span>
+<span class="p">$</span> sextant query --type Port --where locode=NLRTM \
+    --link arrivals --from 2026-04-01 --to 2026-07-01
+  24 result(s)
+  cost
+    index_used           TIDX
+    keys_scanned         25
+    bloom_rejections     0
+    elapsed_us           347</pre></div>
+  <section class="cs-section"><h2>Why it exists</h2><div class="cs-body">
+<p>A data platform is only trustworthy if you can point at any number and ask where it came from, and get an answer you can check. Most systems keep that history as a log or a comment. In Sextant it is an invariant that the system tests.</p>
+<p>The data is real and messy: port and vessel records from the NGA World Port Index (CSV), UN/LOCODE (CSV) and Finland&rsquo;s Digitraffic service (REST/JSON, including AIS ship positions). The same port shows up under different names, codes and coordinates in each source.</p>
+<p>The name comes from navigation. A sextant fixes your position by combining several independent observations, which is what entity resolution does.</p>
+</div></section><section class="cs-section"><h2>What I built</h2><div class="cs-body">
+<h3>A storage engine underneath</h3>
+<p>An LSM-tree key-value store with a write-ahead log, memtable, SSTables, bloom filters, a block cache, leveled compaction and crash recovery. I chose to build it instead of linking RocksDB, and I followed LevelDB&rsquo;s design closely, so this part is a reimplementation for learning rather than a new design.</p>
+<h3>Everything on top is mine</h3>
+<ul>
+<li><strong>Ontology.</strong> A declarative schema over twelve keyspaces, with connectors for all three sources.</li>
+<li><strong>Entity resolution.</strong> Blocking, pairwise scoring, veto-constrained clustering and fusion. 1,451 records become 1,187 entities.</li>
+<li><strong>Cell-level lineage.</strong> Every property stores the raw source row and the chain of transforms that produced it.</li>
+<li><strong>Query planner.</strong> It returns its plan and its cost (keys scanned, blocks read, bloom rejections, microseconds) with every answer.</li>
+<li><strong>Interface.</strong> An HTTP API and a React front end with a lineage drawer, a link graph and a review queue.</li>
+</ul>
+</div></section><section class="cs-section"><h2>Results</h2><div class="cs-body"><dl class="cs-facts"><div><dt>of 4,201 properties across 1,187 entities replay from their source row</dt><dd>100%</dd></div><div><dt>F1 resolving 1,451 records into 1,187 entities</dt><dd>0.991</dd></div><div><dt>batched writes per second at 1.20&times; write amplification</dt><dd>1.53M</dd></div><div><dt>tests passing on Linux, Windows and macOS, clean under ASan, UBSan and TSan</dt><dd>418</dd></div></dl>
+<p><code>sextant explain</code> walks every property of every entity, fetches the raw source row it names, re-applies the transform chain and checks that the result equals the stored value. It has a negative control, because a check that cannot fail is not a check.</p>
+<p>Vetoes in the clustering step lift precision from 0.973 to 1.000. A three-month window query is answered in 359 &micro;s over 25 keys, where a full scan walks 92.</p>
+</div></section><section class="cs-section"><h2>What the numbers don&rsquo;t say</h2><div class="cs-body">
+<p class="note">The storage figures are microbenchmarks on synthetic keys on one machine. 1.53M writes per second is one process writing batched 100-byte values into a warm page cache. With <code>sync=true</code> the same engine does about 655 writes per second, which is the fsync floor, so the batched number is not a durability figure.</p>
+</div></section>
+  <a class="next" href="/work/nanoserve/"><span class="next-label">Next project</span><span class="next-title">nanoserve</span></a>
+</main>
+<footer class="site-footer wrap">
+  <span>&copy; <span data-year>2026</span> Aaditya Kumawat</span>
+  <span>New Delhi, <span class="num" data-clock data-short>IST</span></span>
+  <span><a href="https://github.com/AadityaK21">GitHub</a> &nbsp; <a href="https://www.linkedin.com/in/aaditya-kumawat-9588012b2/">LinkedIn</a> &nbsp; <a href="#top">Back to top</a></span>
+</footer>
+<script src="/assets/js/site.js?v=1" defer></script>
+</body>
+</html>
